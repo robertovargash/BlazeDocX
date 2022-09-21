@@ -1,0 +1,31 @@
+﻿@using Blazored.LocalStorage
+@using BlazeDocX.Helpers
+@using BlazeDocX.Services
+@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject ThemeManager themeManager
+@inject ISyncLocalStorageService localStorage
+@*@inject InstagramAuthStateProvider authStateProvider;*@
+@*@attribute [Authorize]*@
+    
+
+<MudThemeProvider IsDarkMode="@themeManager.IsDark" Theme="themeManager.Theme"/>
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Color="Color.Transparent" Elevation="0">
+        <img src="images/xceed_logo.svg" width="42" height="42" class="mr-4"/> 
+        <MudText Class="text-bold" Typo="Typo.h5"><b>Xceed BlazeDocX</b></MudText>
+        <MudSpacer/>
+        <MudSwitch @bind-Checked="@themeManager.IsDark" ThumbIcon="@Icon" ThumbIconColor="@IconColor"/>
+    </MudAppBar>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    string Icon => themeManager.IsDark ? Icons.Material.TwoTone.DarkMode : Icons.Material.TwoTone.LightMode;
+    Color IconColor => themeManager.IsDark ? Color.Dark  : Color.Default;
+}

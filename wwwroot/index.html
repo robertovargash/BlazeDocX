@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!--suppress HtmlUnknownTarget -->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Thrift Shop</title>
+    <base href="/" />
+    <link href="fonts/quicksand/index.css" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="styles/globals.css" rel="stylesheet" />
+    <link href="manifest.json" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <script>
+        window.onload = () => {
+            if (localStorage.getItem('isDark') === undefined) {
+                localStorage.setItem('isDark', isDark);
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: system-font, Quicksand, 'Segoe UI', serif !important;
+        }
+        /*noinspection CssInvalidPropertyValue*/
+        html {
+            overflow: overlay;
+        }
+
+        body.dark {
+            background-color: #32333dff
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">Loading...</div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="app/interop.js"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
+</body>
+
+</html>

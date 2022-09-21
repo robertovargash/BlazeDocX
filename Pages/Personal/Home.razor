@@ -1,0 +1,98 @@
+﻿@page "/"
+@using BlazeDocX.Models
+@using BlazeDocX.Services
+@inject IJSRuntime jsRuntime
+@inject ProfileCreator profileCreator
+
+<MudContainer Class="mt-4">
+    <MudGrid>
+            <MudItem xs="12" sm="4" md="3">
+                <MudCard >
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText><b>Public Profile</b></MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex justify-center mb-4">
+                            <MudAvatar Image="@_profile.Picture" Style="height:100px; width:100px;">
+                            @if (loadingPicture)
+                            {
+                                <MudProgressCircular Size="Size.Large" Indeterminate/>
+                            }
+                            else if(_profile.Picture == null)
+                            {
+                                <MudIcon Icon="@Icons.Material.Outlined.SentimentVeryDissatisfied" Size="Size.Large"/>
+                            }
+                            </MudAvatar> 
+                        </div>
+                        <MudText Align="Align.Center">@_profile.FirstName @_profile.LastName</MudText>
+                        <MudText Align="Align.Center">@_profile.Email</MudText>
+                    </MudCardContent>
+                    <MudCardActions Class="d-flex justify-center">
+                        <InputFile id="fileInput" OnChange="UploadFiles" hidden multiple/>    
+                        <MudIconButton 
+                           HtmlTag="label"
+                           Color="Color.Info"
+                           Icon="@Icons.Filled.PhotoCamera"
+                           for="fileInput"
+                        />
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" sm="8" md="9">
+                <MudCard >
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText><b>Profile Details</b></MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem xs="12" md="6">
+                                <MudTextField Immediate @bind-Value="_profile.FirstName" Label="First Name" />
+                            </MudItem>
+                            <MudItem xs="12" md="6">
+                                <MudTextField Immediate @bind-Value="_profile.LastName" Label="Last Name" />
+                            </MudItem>
+                            <MudItem xs="12" md="4">
+                                <MudTextField Immediate @bind-Value="_profile.PhoneNumber" Label="Phone number" />
+                            </MudItem>
+                            <MudItem xs="12" md="8">
+                                <MudTextField Immediate @bind-Value="_profile.Email" Label="Email" HelperText="Dont worry, we shall not spam!" InputType="InputType.Email" />
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudTextField Lines=10 @bind-Value="_profile.Resume" Label="Resume" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudCardActions Class="pb-4 pl-4">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="SaveChanges">Save Changes</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+</MudContainer>
+
+@code {
+    Profile _profile = new();
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    bool loadingPicture = false;
+
+    private async void UploadFiles(InputFileChangeEventArgs e)
+    {
+        if (e.File is not null)
+        {
+            loadingPicture = true;
+            _profile.Picture = await profileCreator.GetImageBase64(e.File);
+            StateHasChanged();
+            loadingPicture = false;
+        }
+    }
+
+    async Task SaveChanges()
+    {
+        await profileCreator.Create(_profile);
+    }
+}
