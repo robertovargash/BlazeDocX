@@ -1,0 +1,28 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm Model="@P_resume" OnValidSubmit="@Do">
+            <MudTextField ReadOnly="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Summary item" @bind-Value="@P_resume.Summary"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Do">@Operation</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public ResumeItem P_resume { get; set; } = new ResumeItem();
+    [Parameter] public string Operation { get; set; } = "";
+    [Parameter] public bool ReadOnly { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Do()
+    {
+        MudDialog.Close(DialogResult.Ok(P_resume));
+    }
+}

@@ -1,0 +1,32 @@
+﻿@using System.ComponentModel.DataAnnotations
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@P_reference" OnValidSubmit="@Do">
+            <MudTextField ReadOnly="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="reference Name" @bind-Value="@P_reference.PersonName" />
+            <MudTextField ReadOnly="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Company Name" @bind-Value="@P_reference.CompanyName"/>
+            <MudTextField ReadOnly="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Occupation" @bind-Value="@P_reference.Occupation" />
+            <MudTextField Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" ReadOnly="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Email" @bind-Value="@P_reference.Email" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Do">@Operation</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public WorkReference P_reference { get; set; } = new WorkReference();
+    [Parameter] public string Operation { get; set; } = "";
+    [Parameter] public bool ReadOnly { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Do()
+    {
+        MudDialog.Close(DialogResult.Ok(P_reference));
+    }
+}

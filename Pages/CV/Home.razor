@@ -1,0 +1,629 @@
+﻿@page "/"
+@inject IJSRuntime jsRuntime
+@inject CVCreator cvCreator
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudGrid>
+        @*<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="SaveChanges">Save Changes</MudButton>*@
+
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText><b>CV Details</b></MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="12" md="4">
+                            <MudTextField Immediate @bind-Value="cv.FirstName" Label="First Name" />
+                        </MudItem>
+                        <MudItem xs="12" md="4">
+                            <MudTextField Immediate @bind-Value="cv.LastName" Label="Last Name" />
+                        </MudItem>
+                        <MudItem xs="12" md="4">
+                            <MudTextField Immediate @bind-Value="cv.Email" Label="Email" InputType="InputType.Email" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+                <MudCardActions Class="pb-4 pl-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="SaveChanges">Save Changes</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="AddSummaryItem">Add Summary</MudButton>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (cv.ResumeSummary.Count > 0)
+                    {
+                        <MudTable Elevation="0" Items="@cv.ResumeSummary" Hover="true" LoadingProgressColor="Color.Info">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Resume Summary</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>#</MudTh>
+                                <MudTh>Sumary elements</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Id">@GetSummaryRowNumber(context)</MudTd>
+                                <MudTd DataLabel="Sumary">@context.Summary</MudTd>
+                                <MudTd>
+                                    <MudButton @onclick="@((e) => EditSummaryItem(context))" Color="Color.Primary">Edit</MudButton>
+                                    <MudButton @onclick="@((e) => DeleteSummaryItem(context))" Color="Color.Secondary">Delete</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText>No summary inserted</MudText>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="AddWorkExperience">Add Work Experience</MudButton>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (cv.WorkExperiences.Count > 0)
+                    {
+                        <MudTable Elevation="0" Items="@cv.WorkExperiences" Hover="true" LoadingProgressColor="Color.Info">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Work Experience list</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>#</MudTh>
+                                <MudTh>Company Name</MudTh>
+                                <MudTh>Country</MudTh>
+                                <MudTh>Ocuppation</MudTh>
+                                <MudTh>Start Date</MudTh>
+                                <MudTh>End Date</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Id">@GetWorkExpRowNumber(context)</MudTd>
+                                <MudTd DataLabel="CompanyName">@context.CompanyName</MudTd>
+                                <MudTd DataLabel="Country">@context.CompanyCountry</MudTd>
+                                <MudTd DataLabel="Ocuppation">@context.Occupation</MudTd>
+                                <MudTd DataLabel="StartDate">@(context.StartDate != null ? ((DateTime)context.StartDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
+                                @if (context.IsCurrent)
+                                {
+                                    <MudTd DataLabel="EndDate"><MudChip Color="Color.Primary">Still employee</MudChip></MudTd>
+                                }
+                                else
+                                {
+                                    <MudTd DataLabel="EndDate">@(context.EndDate != null ? ((DateTime)context.EndDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
+                                }
+                                <MudTd>
+                                    <MudButton @onclick="@((e) => EditWorkExperience(context))" Color="Color.Primary">Edit</MudButton>
+                                    <MudButton @onclick="@((e) => DeleteWorkExperience(context))" Color="Color.Secondary">Delete</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText>No experience inserted</MudText>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="AddEducation">Add Education</MudButton>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (cv.Educations.Count > 0)
+                    {
+                        <MudTable Elevation="0" Items="@cv.Educations" Hover="true" LoadingProgressColor="Color.Info">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Education list</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>#</MudTh>
+                                <MudTh>Institution</MudTh>
+                                <MudTh>Country</MudTh>
+                                <MudTh>Degree</MudTh>
+                                <MudTh>Start Date</MudTh>
+                                <MudTh>End Date</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Id">@GetEducationRowNumber(context)</MudTd>
+                                <MudTd DataLabel="Institution">@context.Institute</MudTd>
+                                <MudTd DataLabel="Country">@context.InstituteCountry</MudTd>
+                                <MudTd DataLabel="Degree">@context.Degree</MudTd>
+                                <MudTd DataLabel="StartDate">@(context.StartDate != null ? ((DateTime)context.StartDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
+                                @if (context.IsCurrent)
+                                {
+                                    <MudTd DataLabel="EndDate"><MudChip Color="Color.Primary">Still there</MudChip></MudTd>
+                                }
+                                else
+                                {
+                                    <MudTd DataLabel="EndDate">@(context.EndDate != null ? ((DateTime)context.EndDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
+                                }
+                                <MudTd>
+                                    <MudButton @onclick="@((e) => EditEducation(context))" Color="Color.Primary">Edit</MudButton>
+                                    <MudButton @onclick="@((e) => DeleteEducation(context))" Color="Color.Secondary">Delete</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText>No education inserted</MudText>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="AddSkill">Add Skills</MudButton>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (cv.Skills.Count > 0)
+                    {
+                        <MudTable Elevation="0" GroupBy="@_groupDefinition" GroupHeaderStyle="background-color:var(--mud-palette-background-grey)" Items="@cv.Skills" Hover="true" LoadingProgressColor="Color.Info">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Skills list</MudText>
+                            </ToolBarContent>
+                            <ColGroup>
+                                <col style="width: 60px;" />
+                                <col />
+                                <col />
+                                <col />
+                                <col />
+                                <col />
+                            </ColGroup>
+                            <HeaderContent>
+                                <MudTh>#</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Description</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"Type: {context.Key}")</MudTh>
+                                </GroupHeaderTemplate>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Id">@GetSkillsRowNumber(context)</MudTd>
+                                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                                    <MudTd DataLabel="Description">@context.Description</MudTd>
+                                    <MudTd>
+                                        <MudButton @onclick="@((e) => EditSkill(context))" Color="Color.Primary">Edit</MudButton>
+                                        <MudButton @onclick="@((e) => DeleteSkill(context))" Color="Color.Secondary">Delete</MudButton>
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                    }
+                    else
+                    {
+                        <MudText>No skills inserted</MudText>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="AddReference">Add Reference</MudButton>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (cv.References.Count > 0)
+                    {
+                        <MudTable Elevation="0" Items="@cv.References" Hover="true" LoadingProgressColor="Color.Info">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">References list</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>#</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>E-Mail</MudTh>
+                                <MudTh>Ocuppation</MudTh>
+                                <MudTh>Company</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Id">@GetReferencesRowNumber(context)d</MudTd>
+                                <MudTd DataLabel="Name">@context.PersonName</MudTd>
+                                <MudTd DataLabel="Email">@context.Email</MudTd>
+                                <MudTd DataLabel="Occupation">@context.Occupation</MudTd>
+                                <MudTd DataLabel="Company Name">@context.CompanyName</MudTd>
+                                <MudTd>
+                                    <MudButton @onclick="@((e) => EditReference(context))" Color="Color.Primary">Edit</MudButton>
+                                    <MudButton @onclick="@((e) => DeleteReference(context))" Color="Color.Secondary">Delete</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText>No references inserted</MudText>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+    //Profile _profile = new();
+    CV cv = new();
+    public int? GetSummaryRowNumber(object element) => cv.ResumeSummary?.TakeWhile(x => x != element).Count() + 1;
+    public int? GetWorkExpRowNumber(object element) => cv.WorkExperiences?.TakeWhile(x => x != element).Count() + 1;
+
+    public int? GetEducationRowNumber(object element) => cv.Educations?.TakeWhile(x => x != element).Count() + 1;
+
+    public int? GetSkillsRowNumber(object element) => cv.Skills?.TakeWhile(x => x != element).Count() + 1;
+    public int? GetReferencesRowNumber(object element) => cv.References?.TakeWhile(x => x != element).Count() + 1;
+
+
+    private TableGroupDefinition<Skill> _groupDefinition = new()
+        {
+            GroupName = "Group",
+            Indentation = false,
+            Expandable = true,
+            IsInitiallyExpanded = false,
+            Selector = (e) => e.Tag
+        };
+
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    bool loadingPicture = false;
+
+    //private async void UploadFiles(InputFileChangeEventArgs e)
+    //{
+    //    if (e.File is not null)
+    //    {
+    //        loadingPicture = true;
+    //        _profile.Picture = await profileCreator.GetImageBase64(e.File);
+    //        StateHasChanged();
+    //        loadingPicture = false;
+    //    }
+    //}
+
+    #region Summary
+    async Task AddSummaryItem()
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_resume"] = new ResumeItem(),
+                ["Operation"] = "ADD",
+                ["ReadOnly"] = false
+            };
+        var dialog = DialogService.Show<SummaryDataDialog>("Creating Summary item", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            ResumeItem item = new ResumeItem();
+            item.Summary = ((ResumeItem)result.Data).Summary;
+            item.Id = cv.ResumeSummary.Count + 1;
+            cv.ResumeSummary.Add(item);
+        }
+    }
+
+    async Task EditSummaryItem(ResumeItem item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_resume"] = item,
+                ["Operation"] = "UPDATE",
+                ["ReadOnly"] = false
+            };
+        var dialog = DialogService.Show<SummaryDataDialog>("Editing Summary item", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            item.Summary = ((ResumeItem)result.Data).Summary;
+        }
+    }
+
+    async Task DeleteSummaryItem(ResumeItem item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_resume"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true
+            };
+        var dialog = DialogService.Show<SummaryDataDialog>("Deleting Summary item", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            int idSummary = ((ResumeItem)result.Data).Id;
+            ResumeItem? re = cv.ResumeSummary.Find(r => r.Id == idSummary);
+            if (re != null)
+            {
+                cv.ResumeSummary.Remove(re);
+            }
+        }
+    }
+    #endregion
+
+    #region WorkExperience
+    async Task AddWorkExperience()
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_workexperience"] = new WorkExperience(),
+                ["Operation"] = "ADD",
+                ["ReadOnly"] = false,
+                ["StartDate"] = null,
+                ["EndDate"] = null,
+            };
+        var dialog = DialogService.Show<WorkExperienceDataDialog>("Adding work experience", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            WorkExperience item = ((WorkExperience)result.Data);
+            item.Id = cv.WorkExperiences.Count + 1;
+            cv.WorkExperiences.Add(item);
+        }
+    }
+
+    async Task EditWorkExperience(WorkExperience item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_workexperience"] = item,
+                ["Operation"] = "UPDATE",
+                ["ReadOnly"] = false,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<WorkExperienceDataDialog>("Editing work experience", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            WorkExperience me = ((WorkExperience)result.Data);
+            var e = cv.WorkExperiences.Find(we => we.Id == me.Id);
+            e = me;
+        }
+    }
+
+    async Task DeleteWorkExperience(WorkExperience item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_workexperience"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<WorkExperienceDataDialog>("Deleting work experience", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            int Id = ((WorkExperience)result.Data).Id;
+            WorkExperience? we = cv.WorkExperiences.Find(r => r.Id == Id);
+            if (we != null)
+            {
+                cv.WorkExperiences.Remove(we);
+            }
+        }
+    }
+    #endregion
+
+    #region Education
+    async Task AddEducation()
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_education"] = new Education(),
+                ["Operation"] = "ADD",
+                ["ReadOnly"] = false,
+                ["StartDate"] = null,
+                ["EndDate"] = null,
+            };
+        var dialog = DialogService.Show<EducationDataDialog>("Adding education", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            Education item = ((Education)result.Data);
+            item.Id = cv.Educations.Count + 1;
+            cv.Educations.Add(item);
+        }
+    }
+
+    async Task EditEducation(Education item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_education"] = item,
+                ["Operation"] = "UPDATE",
+                ["ReadOnly"] = false,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<EducationDataDialog>("Editing education", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            Education me = ((Education)result.Data);
+            var e = cv.Educations.Find(we => we.Id == me.Id);
+            e = me;
+        }
+    }
+
+    async Task DeleteEducation(Education item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_education"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<EducationDataDialog>("Deleting education", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            int Id = ((Education)result.Data).Id;
+            Education? we = cv.Educations.Find(r => r.Id == Id);
+            if (we != null)
+            {
+                cv.Educations.Remove(we);
+            }
+        }
+    }
+    #endregion
+
+    #region Skills
+    async Task AddSkill()
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_skill"] = new Skill(),
+                ["Operation"] = "ADD",
+                ["ReadOnly"] = false,
+            };
+        var dialog = DialogService.Show<SkillDataDialog>("Adding skill", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            Skill item = ((Skill)result.Data);
+            item.Id = cv.Skills.Count + 1;
+            cv.Skills.Add(item);
+        }
+    }
+
+    async Task EditSkill(Skill item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_skill"] = item,
+                ["Operation"] = "UPDATE",
+                ["ReadOnly"] = false,
+            };
+        var dialog = DialogService.Show<SkillDataDialog>("Editing skill", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            Skill me = ((Skill)result.Data);
+            var e = cv.Skills.Find(we => we.Id == me.Id);
+            e = me;
+        }
+    }
+
+    async Task DeleteSkill(Skill item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_skill"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+            };
+        var dialog = DialogService.Show<SkillDataDialog>("Deleting skill", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            int Id = ((Skill)result.Data).Id;
+            Skill? we = cv.Skills.Find(r => r.Id == Id);
+            if (we != null)
+            {
+                cv.Skills.Remove(we);
+            }
+        }
+    }
+    #endregion
+
+    #region References
+    async Task AddReference()
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_reference"] = new WorkReference(),
+                ["Operation"] = "ADD",
+                ["ReadOnly"] = false,
+            };
+        var dialog = DialogService.Show<WorkreferenceDataDialog>("Adding reference", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            WorkReference item = ((WorkReference)result.Data);
+            item.Id = cv.References.Count + 1;
+            cv.References.Add(item);
+        }
+    }
+
+    async Task EditReference(WorkReference item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_reference"] = item,
+                ["Operation"] = "UPDATE",
+                ["ReadOnly"] = false,
+            };
+        var dialog = DialogService.Show<WorkreferenceDataDialog>("Editing reference", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            WorkReference me = ((WorkReference)result.Data);
+            var e = cv.References.Find(we => we.Id == me.Id);
+            e = me;
+        }
+    }
+
+    async Task DeleteReference(WorkReference item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_reference"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+            };
+        var dialog = DialogService.Show<WorkreferenceDataDialog>("Deleting reference", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            int Id = ((WorkReference)result.Data).Id;
+            WorkReference? we = cv.References.Find(r => r.Id == Id);
+            if (we != null)
+            {
+                cv.References.Remove(we);
+            }
+        }
+    }
+    #endregion
+
+    async Task SaveChanges()
+    {
+        await cvCreator.Create(cv);
+    }
+}

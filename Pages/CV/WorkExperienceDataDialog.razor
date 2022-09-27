@@ -1,0 +1,44 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudForm Model="@P_workexperience" OnValidSubmit="@Do">
+            <MudTextField Disabled="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Company Name" @bind-Value="@P_workexperience.CompanyName" />
+            <MudTextField Disabled="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Company Country" @bind-Value="@P_workexperience.CompanyCountry" />
+            <MudTextField Disabled="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Occupation" @bind-Value="@P_workexperience.Occupation" />
+            <MudDatePicker DateFormat="dd/MM/yyyy" Disabled="ReadOnly" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="Start Date" @bind-Date="@StartDate" />
+            <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@StartDate" Disabled="@(P_workexperience.IsCurrent || ReadOnly || StartDate == null)" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="End Date" @bind-Date="@EndDate" />
+            <MudSwitch Disabled="ReadOnly" Color="Color.Primary" @bind-Checked="@(P_workexperience.IsCurrent)">Currently working here</MudSwitch>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Do">@Operation</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public WorkExperience P_workexperience { get; set; } = new WorkExperience();
+    [Parameter] public string Operation { get; set; } = "";
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public DateTime? StartDate { get; set; }
+    [Parameter] public DateTime? EndDate { get; set; }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Do()
+    {
+        P_workexperience.StartDate = StartDate;
+        if (P_workexperience.IsCurrent)
+        {
+            P_workexperience.EndDate = null;
+        }
+        else
+        {
+            P_workexperience.EndDate = EndDate;
+        }
+        MudDialog.Close(DialogResult.Ok(P_workexperience));
+    }
+}

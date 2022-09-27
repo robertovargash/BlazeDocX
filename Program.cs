@@ -20,6 +20,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddMudServices();
 
 builder.Services.AddSingleton<ProfileCreator>();
+builder.Services.AddSingleton<CVCreator>();
+
 
 builder.Services.AddBlazoredLocalStorage(config =>
 {
