@@ -22,36 +22,17 @@ namespace BlazeDocX.Services
 
             //await InsertPicture(p, profile.Picture);
             //var t = SetTransparentBorders(docX.InsertTable(3, 3));
-            var fullname = docX.InsertParagraph(cv.FullName.ToString().ToUpper());
-            fullname.Alignment = Alignment.center;
-            fullname.Bold();
-            fullname.FontSize(14);
-            fullname.Font("Swiss Light 10pt");
+            InsertParagraph(docX, cv.FullName.ToString().ToUpper(), "Swiss Light 10pt", 14,true, Alignment.center);
 
-            var occupation = docX.InsertParagraph("Software Engineer");
-            occupation.Alignment = Alignment.center;
-            occupation.Bold();
-            occupation.FontSize(10);
-            occupation.Font("Arial");
+            InsertParagraph(docX, cv.Occupation.ToString(), "Arial", 10,true, Alignment.center);
 
-            var email = docX.InsertParagraph(cv.Email.ToString().ToLower());
-            email.Alignment = Alignment.center;
-            email.Bold();
-            email.FontSize(10);
-            email.Font("Arial");
-            email.InsertHorizontalLine(HorizontalBorderPosition.bottom, BorderStyle.Tcbs_single,size:12,space:10);
-            
+            var email = InsertParagraph(docX, cv.Email.ToString().ToLower(), "Arial", 10, true, Alignment.center);
+            email.InsertHorizontalLine(HorizontalBorderPosition.bottom, BorderStyle.Tcbs_single, size: 12, space: 10);
 
-            var summary_header = docX.InsertParagraph("RESUME SUMMARY");
-            summary_header.Alignment = Alignment.center;
-            summary_header.Bold();
-            summary_header.FontSize(10);
-            summary_header.Font("Arial");
+            var summary_header = InsertParagraph(docX, "RESUME SUMMARY", "Arial", 10, true, Alignment.center);
             summary_header.SpacingBefore(3);
 
-
             var bulletedlist = docX.AddList(new ListOptions() { ListType = ListItemType.Bulleted });
-
             Formatting listformat = new Formatting();
             listformat.FontFamily = new Font("Arial");
             listformat.Size = 10;
@@ -61,12 +42,106 @@ namespace BlazeDocX.Services
                 bulletedlist.AddListItem(summary.Summary.ToString(), 0, listformat);
             }
             docX.InsertList(bulletedlist);
-            //t.MergeCellsInColumn(0, 0, 1);
-            //t.SetColumnWidth(0, size);
 
-            //var firstRow = t.Rows[0];
-            //firstRow.Height = size / 2;
+            if (cv.WorkExperiences.Count > 0)
+            {
+                var experience_header = InsertParagraph(docX, "WORK EXPERIENCE", "Arial", 10, true, Alignment.center);
+                experience_header.SpacingBefore(3);
 
+                var t_WorkExperiences = docX.AddTable(cv.WorkExperiences.Count, 3);
+                t_WorkExperiences.Design = TableDesign.None;
+                t_WorkExperiences.Alignment = Alignment.both;
+                for (int i = 0; i < cv.WorkExperiences.Count; i++)
+                {
+                    t_WorkExperiences.Rows[i].Cells[0].Paragraphs[0].Append($"{cv.WorkExperiences[i].CompanyName.ToUpper()}, {cv.WorkExperiences[i].CompanyCountry.ToUpper()}").Bold();
+                    t_WorkExperiences.Rows[i].Cells[0].Paragraphs[0].InsertParagraphAfterSelf(cv.WorkExperiences[i].Occupation);
+                    t_WorkExperiences.Rows[i].Cells[1].Paragraphs[0].Append("Date Started").Bold().Alignment = Alignment.right;
+                    t_WorkExperiences.Rows[i].Cells[2].Paragraphs[0].Append("Date Ended").Bold().Alignment = Alignment.right;
+                    if (cv.WorkExperiences[i].IsCurrent)
+                    {
+                        t_WorkExperiences.Rows[i].Cells[1].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.WorkExperiences[i].StartDate).ToString("dd/MM/yyyy")}");
+                        t_WorkExperiences.Rows[i].Cells[1].Paragraphs[1].Alignment = Alignment.right;
+                        t_WorkExperiences.Rows[i].Cells[2].Paragraphs[0].InsertParagraphAfterSelf($"CURRENT");
+                        t_WorkExperiences.Rows[i].Cells[2].Paragraphs[1].Alignment = Alignment.right;
+                    }
+                    else
+                    {
+                        t_WorkExperiences.Rows[i].Cells[1].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.WorkExperiences[i].StartDate).ToString("dd/MM/yyyy")}");
+                        t_WorkExperiences.Rows[i].Cells[1].Paragraphs[1].Alignment = Alignment.right;
+                        t_WorkExperiences.Rows[i].Cells[2].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.WorkExperiences[i].EndDate).ToString("dd/MM/yyyy")}");
+                        t_WorkExperiences.Rows[i].Cells[2].Paragraphs[1].Alignment = Alignment.right;
+                    }
+                }
+                t_WorkExperiences.SetTableCellMargin(TableCellMarginType.bottom, 5);
+                t_WorkExperiences.SetWidthsPercentage(new float[] { 70, 20, 10 });
+                docX.InsertTable(t_WorkExperiences);
+            }
+
+            if (cv.Educations.Count > 0)
+            {
+                var education_header = InsertParagraph(docX, "EDUCATION", "Arial", 10, true, Alignment.center);
+                education_header.SpacingBefore(3);
+
+                var t_education = docX.AddTable(cv.Educations.Count, 3);
+                t_education.Design = TableDesign.None;
+                t_education.Alignment = Alignment.both;
+                for (int i = 0; i < cv.Educations.Count; i++)
+                {
+                    t_education.Rows[i].Cells[0].Paragraphs[0].Append($"{cv.Educations[i].Institute.ToUpper()}, {cv.Educations[i].InstituteCountry.ToUpper()}").Bold();
+                    t_education.Rows[i].Cells[0].Paragraphs[0].InsertParagraphAfterSelf(cv.Educations[i].Degree);
+                    t_education.Rows[i].Cells[1].Paragraphs[0].Append("Date Started").Bold().Alignment = Alignment.right;
+                    t_education.Rows[i].Cells[2].Paragraphs[0].Append("Date Ended").Bold().Alignment = Alignment.right;
+                    if (cv.Educations[i].IsCurrent)
+                    {
+                        t_education.Rows[i].Cells[1].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.Educations[i].StartDate).ToString("dd/MM/yyyy")}");
+                        t_education.Rows[i].Cells[1].Paragraphs[1].Alignment = Alignment.right;
+                        t_education.Rows[i].Cells[2].Paragraphs[0].InsertParagraphAfterSelf($"CURRENT");
+                        t_education.Rows[i].Cells[2].Paragraphs[1].Alignment = Alignment.right;
+                    }
+                    else
+                    {
+                        t_education.Rows[i].Cells[1].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.Educations[i].StartDate).ToString("dd/MM/yyyy")}");
+                        t_education.Rows[i].Cells[1].Paragraphs[1].Alignment = Alignment.right;
+                        t_education.Rows[i].Cells[2].Paragraphs[0].InsertParagraphAfterSelf($"{((DateTime)cv.Educations[i].EndDate).ToString("dd/MM/yyyy")}");
+                        t_education.Rows[i].Cells[2].Paragraphs[1].Alignment = Alignment.right;
+                    }
+                }
+                t_education.SetTableCellMargin(TableCellMarginType.bottom, 5);
+                t_education.SetWidthsPercentage(new float[] { 70, 20, 10 });
+                docX.InsertTable(t_education);
+            }
+
+            var skills_header = InsertParagraph(docX, "SKILLS", "Arial", 10, true, Alignment.center);
+            skills_header.SpacingBefore(3);
+
+            var keywords = cv.Skills.GroupBy(w => w.Tag).Select(g => new { keyword = g.Key,Tag = g.Select(c => c.Tag)});
+
+            foreach (var item in keywords)
+            {
+                InsertParagraph(docX, item.keyword.ToString().ToUpper(), "Arial", 10, false, Alignment.left);
+                var bulletedTaglist = docX.AddList(new ListOptions() { ListType = ListItemType.Bulleted });
+                Formatting listTagformat = new Formatting();
+                listTagformat.FontFamily = new Font("Arial");
+                listTagformat.Size = 10;
+
+                foreach (var skill in cv.Skills.Where(s => s.Tag == item.keyword.ToString()).ToList())
+                {
+                    bulletedTaglist.AddListItem($"{skill.Name}: {skill.Description}", 0, listTagformat);
+                }
+                docX.InsertList(bulletedTaglist);
+            }
+
+            var references_header = InsertParagraph(docX, "REFERENCES", "Arial", 10, true, Alignment.center);
+            references_header.SpacingBefore(3);
+            var bulletedReferencelist = docX.AddList(new ListOptions() { ListType = ListItemType.Bulleted });
+            Formatting listReferenceformat = new Formatting();
+            listReferenceformat.FontFamily = new Font("Arial");
+            listReferenceformat.Size = 10;
+            foreach (var reference in cv.References)
+            {
+                bulletedReferencelist.AddListItem($"{reference.PersonName}: {reference.CompanyName} {reference.Occupation} ({reference.Email})", 0, listReferenceformat);
+            }
+            docX.InsertList(bulletedReferencelist);
             //System.Drawing.Color darkGray = System.Drawing.Color.DarkGray;
 
             //SetTransparentBorders(t.Rows[1].Cells[0]);
@@ -103,6 +178,16 @@ namespace BlazeDocX.Services
             await jsRuntime.InvokeVoidAsync("blazeDocX.downloadStream", memStream.GetBuffer(), $"CV - {cv.FullName}.docx");
 
             docX.Dispose();
+        }
+
+        private static Paragraph InsertParagraph(DocX docX, string paragraph, string fontfamilyname, double fontsize, bool bold = false, Alignment alignment = Alignment.left)
+        {
+            var fullname = docX.InsertParagraph(paragraph);
+            fullname.Alignment = alignment;
+            fullname.Bold(bold);
+            fullname.FontSize(fontsize);
+            fullname.Font(fontfamilyname);
+            return fullname;
         }
 
         private static Cell SetTransparentBorders(Cell cell)

@@ -6,7 +6,7 @@
             <MudTextField Disabled="ReadOnly" T="string" Required="true" RequiredError="Required!" Label="Degree" @bind-Value="@P_education.Degree" />
             <MudDatePicker DateFormat="dd/MM/yyyy" Disabled="ReadOnly" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="Start Date" @bind-Date="@StartDate" />
             <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@StartDate" Disabled="@(P_education.IsCurrent || ReadOnly || StartDate == null)" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="End Date" @bind-Date="@EndDate" />
-            <MudSwitch Disabled="ReadOnly" Color="Color.Primary" @bind-Checked="@(P_education.IsCurrent)">Currently working here</MudSwitch>
+            <MudSwitch Disabled="ReadOnly" Color="Color.Primary" @bind-Checked="@(P_education.IsCurrent)">Currently studying here</MudSwitch>
         </MudForm>
     </DialogContent>
     <DialogActions>

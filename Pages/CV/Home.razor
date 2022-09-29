@@ -6,7 +6,10 @@
 <MudContainer Class="mt-4">
     <MudGrid>
         @*<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="SaveChanges">Save Changes</MudButton>*@
-
+        @if (Saving)
+        {
+            <MudProgressLinear Color="Color.Primary" Striped="true" Size="Size.Medium" Indeterminate="true" Class="my-7" />
+        }
         <MudItem xs="12">
             <MudCard>
                 <MudCardHeader>
@@ -16,13 +19,16 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudGrid>
-                        <MudItem xs="12" md="4">
+                        <MudItem xs="12" md="3">
                             <MudTextField Immediate @bind-Value="cv.FirstName" Label="First Name" />
                         </MudItem>
-                        <MudItem xs="12" md="4">
+                        <MudItem xs="12" md="3">
                             <MudTextField Immediate @bind-Value="cv.LastName" Label="Last Name" />
                         </MudItem>
-                        <MudItem xs="12" md="4">
+                        <MudItem xs="12" md="3">
+                            <MudTextField Immediate @bind-Value="cv.Occupation" Label="Occupation" />
+                        </MudItem>
+                        <MudItem xs="12" md="3">
                             <MudTextField Immediate @bind-Value="cv.Email" Label="Email" InputType="InputType.Email" />
                         </MudItem>
                     </MudGrid>
@@ -60,10 +66,6 @@
                                 </MudTd>
                             </RowTemplate>
                         </MudTable>
-                    }
-                    else
-                    {
-                        <MudText>No summary inserted</MudText>
                     }
                 </MudCardContent>
             </MudCard>
@@ -112,10 +114,6 @@
                             </RowTemplate>
                         </MudTable>
                     }
-                    else
-                    {
-                        <MudText>No experience inserted</MudText>
-                    }
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -163,10 +161,6 @@
                             </RowTemplate>
                         </MudTable>
                     }
-                    else
-                    {
-                        <MudText>No education inserted</MudText>
-                    }
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -212,10 +206,6 @@
                                 </RowTemplate>
                             </MudTable>
                     }
-                    else
-                    {
-                        <MudText>No skills inserted</MudText>
-                    }
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -254,10 +244,6 @@
                             </RowTemplate>
                         </MudTable>
                     }
-                    else
-                    {
-                        <MudText>No references inserted</MudText>
-                    }
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -267,6 +253,7 @@
 
 @code {
     //Profile _profile = new();
+    public bool Saving { get; set; }
     CV cv = new();
     public int? GetSummaryRowNumber(object element) => cv.ResumeSummary?.TakeWhile(x => x != element).Count() + 1;
     public int? GetWorkExpRowNumber(object element) => cv.WorkExperiences?.TakeWhile(x => x != element).Count() + 1;
@@ -624,6 +611,8 @@
 
     async Task SaveChanges()
     {
+        Saving = true;
         await cvCreator.Create(cv);
+        Saving = false;
     }
 }

@@ -9,6 +9,7 @@ namespace BlazeDocX.Models
         public string LastName { get; set; } = "";
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = "";
+        public string Occupation { get; set; } = "";
         public string FullName => $"{FirstName.Trim()} {LastName.Trim()}".Trim();
         public List<ResumeItem> ResumeSummary { get; set; } = new List<ResumeItem>();
         public List<WorkExperience> WorkExperiences { get; set; } = new List<WorkExperience>();
