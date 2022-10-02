@@ -5,10 +5,14 @@ namespace BlazeDocX.Models
     public class CV
     {
         public int Id { get; set; }
+        [Required(ErrorMessage = "Required field")]
         public string FirstName { get; set; } = "";
+        [Required(ErrorMessage = "Required field")]
         public string LastName { get; set; } = "";
-        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "Required field")]
+        [EmailAddress(ErrorMessage = "Email address not valid")]
         public string Email { get; set; } = "";
+        [Required(ErrorMessage = "Required field")]
         public string Occupation { get; set; } = "";
         public string FullName => $"{FirstName.Trim()} {LastName.Trim()}".Trim();
         public List<ResumeItem> ResumeSummary { get; set; } = new List<ResumeItem>();
