@@ -4,14 +4,15 @@
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Work Experience</MudText>
 @if (!editing_experience)
 {
+    <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
     foreach (var experience in cv.WorkExperiences)
     {
-        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2 mx-2 my-2">
+        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
             <MudGrid Class="m-1">
-                <MudItem Class="d-none d-sm-flex align-self-center">
+                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditWorkExperience(experience))">
                     <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
                 </MudItem>
-                <MudItem Style="width:60%;" Class="align-self-center">
+                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditWorkExperience(experience))">
                     <MudGrid>
                         <MudItem>
                             <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
@@ -21,14 +22,13 @@
                     </MudGrid>
                 </MudItem>
                 <MudSpacer />
-                <MudItem Class="align-self-center" Style="width:25%;">
-                    <MudIconButton @onclick="@(() => EditWorkExperience(experience))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                    @*<MudIconButton @onclick="@(() => EditWorkExperience(experience))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />*@
                     <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
                 </MudItem>
             </MudGrid>
         </MudPaper>
     }
-    <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
 }
 else
 {

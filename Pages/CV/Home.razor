@@ -8,11 +8,6 @@
 <MudGrid Style="position:fixed;">
     <MudItem xs="12">
         <MudToolBar>
-            @* <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Class="mr-5" />
-            <MudIconButton Icon="@Icons.Material.Outlined.Add" />
-            <MudIconButton Icon="@Icons.Material.Outlined.Edit" />
-            <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
-            <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit" />*@
             <MudSpacer />
             <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
         </MudToolBar>
@@ -21,9 +16,9 @@
 <MudContainer Style="margin-top: 64px">
     <MudGrid>
         <MudItem xs="12" md="6">
-            <MudTabs Outlined="true" Position="Position.Bottom" Rounded="true" Border="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabs Outlined="true" Position="Position.Bottom" Rounded="true" Border="true" ApplyEffectsToContainer="true" PanelClass="pa-2">
                 <MudTabPanel Text="Contact info">
-                    <MudCard>
+                    <MudCard Outlined=true>
                         <MudCardHeader>
                             <CardHeaderContent>
                                 <MudText><b>CV Details</b></MudText>
@@ -53,7 +48,8 @@
                     <CardEducation cv="cv"/>
                 </MudTabPanel>
                 <MudTabPanel Text="Skills">
-                    <MudCard>
+                    <CardSkill cv="cv"/>
+@*                    <MudCard>
                         <MudCardHeader>
                             <CardHeaderContent>
                                 <MudText Typo="Typo.h6">Skills list</MudText>
@@ -111,7 +107,7 @@
                             </EditForm>
                         </MudCardContent>
                     </MudCard>
-                </MudTabPanel>
+*@                </MudTabPanel>
                 <MudTabPanel Text="References">
                     <CardReference cv="cv"/>
                 </MudTabPanel>
