@@ -4,488 +4,125 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudContainer Class="mt-4">
+
+<MudGrid Style="position:fixed;">
+    <MudItem xs="12">
+        <MudToolBar>
+            @* <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Class="mr-5" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Add" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Edit" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit" />*@
+            <MudSpacer />
+            <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+<MudContainer Style="margin-top: 64px">
     <MudGrid>
-        @*<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="SaveChanges">Save Changes</MudButton>*@
-        @if (Saving)
-        {
-            <MudProgressLinear Color="Color.Primary" Striped="true" Size="Size.Medium" Indeterminate="true" Class="my-7" />
-        }
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText><b>CV Details</b></MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <EditForm Model="@cv" OnValidSubmit="SaveChanges">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12" md="3">
-                                        <MudTextField For="@(() => cv.FirstName)"  @bind-Value="cv.FirstName" Label="First Name" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="3">
+        <MudItem xs="12" md="6">
+            <MudTabs Outlined="true" Position="Position.Bottom" Rounded="true" Border="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabPanel Text="Contact info">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText><b>CV Details</b></MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudForm @bind-IsValid="@cvform_valid" Model="@cv" ValidationDelay="0">
+                                <MudCard Elevation="0">
+                                    <MudCardContent>
+                                        <MudTextField For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="First Name" />
                                         <MudTextField For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="Last Name" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="3">
                                         <MudTextField For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="Occupation" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="3">
                                         <MudTextField For="@(() => cv.Email)" @bind-Value="cv.Email" Label="Email" InputType="InputType.Email" />
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">SAVE CV</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Resume Summary</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (cv.ResumeSummary.Count > 0)
-                    {
-                        <MudTable Elevation="0" OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", Severity.Success))" RowEditPreview="@BackupSummary"
-                              RowEditCancel="@ResetSummaryToOriginalValues" RowEditCommit="@SummaryHasBeenCommitted" Items="@cv.ResumeSummary"
-                              CanCancelEdit="true"
-                              Hover="true" LoadingProgressColor="Color.Info" CommitEditTooltip="Commit Edit">
-                            <ColGroup>
-                                <col style="width:50px;" />
-                                <col />
-                                <col style="width:50px;" />
-                            </ColGroup>
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Sumary elements</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Id">@GetSummaryRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Sumary">@context.Summary</MudTd>
-                                <MudTd>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteSummaryItem(context))" Color="Color.Primary" />
-                                </MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
-                                <MudTd DataLabel="#">@GetSummaryRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Sumary elements">
-                                    <MudTextField @bind-Value="@context.Summary" Required />
-                                </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>
-                    }
-                    <EditForm Model="@summary_model" OnValidSubmit="AddSummaryItem">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12">
-                                        <MudTextField T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add Summary</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Work Experience list</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (cv.WorkExperiences.Count > 0)
-                    {
-                        <MudTable Elevation="0" OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", Severity.Success))"
-                              RowEditPreview="@BackupWorkExp" RowEditCancel="@ResetWorkExperienceToOriginalValues" RowEditCommit="@WorkExpHasBeenCommitted"
-                              Items="@cv.WorkExperiences" Hover="true" CanCancelEdit="true" LoadingProgressColor="Color.Info" CommitEditTooltip="Commit Edit">
-                            @* <ColGroup>
-                        <col style="width:50px;" />
-                        <col />
-                        <col />
-                        <col />
-                        <col style="width:150px;" />
-                        <col style="width:150px;" />
-                        <col style="width:50px;" />
-                        </ColGroup>*@
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Company Name</MudTh>
-                                <MudTh>Company Location</MudTh>
-                                <MudTh>Ocuppation</MudTh>
-                                <MudTh>Start Date</MudTh>
-                                <MudTh>End Date</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Id">@GetWorkExpRowNumber(context)</MudTd>
-                                <MudTd DataLabel="CompanyName">@context.CompanyName</MudTd>
-                                <MudTd DataLabel="Country">@context.CompanyCountry</MudTd>
-                                <MudTd DataLabel="Ocuppation">@context.Occupation</MudTd>
-                                <MudTd DataLabel="StartDate">@(context.StartDate != null ? ((DateTime)context.StartDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
-                                @if (context.IsCurrent)
-                                {
-                                    <MudTd DataLabel="EndDate"><MudChip Color="Color.Primary">Still employee</MudChip></MudTd>
-                                }
-                                else
-                                {
-                                    <MudTd DataLabel="EndDate">@(context.EndDate != null ? ((DateTime)context.EndDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
-                                }
-                                <MudTd>
-                                    @*<MudButton @onclick="@((e) => EditWorkExperience(context))" Color="Color.Primary">Edit</MudButton>*@
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteWorkExperience(context))" Color="Color.Primary" />
-                                </MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
-                                <MudTd DataLabel="#">@GetWorkExpRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Company Name">
-                                    <MudTextField @bind-Value="@context.CompanyName" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Location">
-                                    <MudTextField @bind-Value="@context.CompanyCountry" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Ocuppation">
-                                    <MudTextField @bind-Value="@context.Occupation" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Start Date">
-                                    <MudDatePicker DateFormat="dd/MM/yyyy" @bind-Date="@context.StartDate" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="Start Date" />
-                                </MudTd>
-                                @if (!context.IsCurrent)
-                                {
-                                    <MudTd DataLabel="End Date">
-                                        <MudDatePicker DateFormat="dd/MM/yyyy" @bind-Date="@context.EndDate" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="End Date" />
-                                    </MudTd>
-                                }
-                                <MudTd DataLabel="CURRENT">
-                                    <MudSwitch Color="Color.Primary" @bind-Checked="@(context.IsCurrent)">CURRENT?</MudSwitch>
-                                </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>
-                    }
-                    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" For="@(() => experience_model.CompanyName)" Label="Company Name" @bind-Value="@experience_model.CompanyName" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" For="@(() => experience_model.CompanyCountry)" Label="Company location" @bind-Value="@experience_model.CompanyCountry" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" Label="Occupation" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudDatePicker DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
-                                    </MudItem>
-                                    @if (!experience_model.IsCurrent)
-                                    {
-                                        <MudItem xs="12" md="4">
-                                            <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
-                                        </MudItem>
-                                    }
-                                    <MudItem xs="12" md="4">
-                                        <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">CURRENT</MudSwitch>
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add Experience</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-                <MudCardActions Class="pb-4 pl-4">
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Education list</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (cv.Educations.Count > 0)
-                    {
-                        <MudTable OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", Severity.Success))" CanCancelEdit="true"
-                              RowEditPreview="@BackupEducation" RowEditCancel="@ResetEducationToOriginalValues" RowEditCommit="@EducationHasBeenCommitted"
-                              Elevation="0" Items="@cv.Educations" Hover="true" LoadingProgressColor="Color.Info">
-                            @* <ColGroup>
-                        <col style="width:50px;" />
-                        <col />
-                        <col />
-                        <col />
-                        <col style="width:150px;" />
-                        <col style="width:150px;" />
-                        <col style="width:50px;" />
-                        </ColGroup>*@
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Institution</MudTh>
-                                <MudTh>Country</MudTh>
-                                <MudTh>Degree</MudTh>
-                                <MudTh>Start Date</MudTh>
-                                <MudTh>End Date</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Id">@GetEducationRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Institution">@context.Institute</MudTd>
-                                <MudTd DataLabel="Location">@context.InstituteCountry</MudTd>
-                                <MudTd DataLabel="Degree">@context.Degree</MudTd>
-                                <MudTd DataLabel="StartDate">@(context.StartDate != null ? ((DateTime)context.StartDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
-                                @if (context.IsCurrent)
-                                {
-                                    <MudTd DataLabel="EndDate"><MudChip Color="Color.Primary">Still there</MudChip></MudTd>
-                                }
-                                else
-                                {
-                                    <MudTd DataLabel="EndDate">@(context.EndDate != null ? ((DateTime)context.EndDate).ToString("dd/MM/yyyy") : "No Date selected")</MudTd>
-                                }
-                                <MudTd>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteEducation(context))" Color="Color.Secondary"></MudIconButton>
-                                </MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
-                                <MudTd DataLabel="#">@GetEducationRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Institute Name">
-                                    <MudTextField @bind-Value="@context.Institute" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Institute Location">
-                                    <MudTextField @bind-Value="@context.InstituteCountry" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Degree">
-                                    <MudTextField @bind-Value="@context.Degree" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Start Date">
-                                    <MudDatePicker DateFormat="dd/MM/yyyy" @bind-Date="@context.StartDate" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="Start Date" />
-                                </MudTd>
-                                @if (!context.IsCurrent)
-                                {
-                                    <MudTd DataLabel="End Date">
-                                        <MudDatePicker DateFormat="dd/MM/yyyy" @bind-Date="@context.EndDate" Placeholder="Select Date" Editable="true" Required="true" RequiredError="Required!" Label="End Date" />
-                                    </MudTd>
-                                }
-                                <MudTd DataLabel="CURRENT">
-                                    <MudSwitch Color="Color.Primary" @bind-Checked="@(context.IsCurrent)">CURRENT?</MudSwitch>
-                                </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>
-                    }
-                    <EditForm OnValidSubmit="AddEducation" Model="@education_model">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" For="@(() => education_model.Institute)" Label="Institute Name" @bind-Value="@education_model.Institute" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" For="@(() => education_model.InstituteCountry)" Label="Institute location" @bind-Value="@education_model.InstituteCountry" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudTextField T="string" Label="Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="4">
-                                        <MudDatePicker DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
-                                    </MudItem>
-                                    @if (!education_model.IsCurrent)
-                                    {
-                                        <MudItem xs="12" md="4">
-                                            <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => education_model.EndDate)" @bind-Date="@experience_model.EndDate" />
-                                        </MudItem>
-                                    }
-                                    <MudItem xs="12" md="4">
-                                        <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">CURRENT</MudSwitch>
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add Education</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Skills list</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (cv.Skills.Count > 0)
-                    {
-                        <MudTable OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", Severity.Success))" CanCancelEdit="true"
-                              RowEditPreview="@BackupSkill" RowEditCancel="@ResetSkillToOriginalValues" RowEditCommit="@SkillHasBeenCommitted"
-                              Elevation="0" GroupBy="@_groupDefinition" GroupHeaderStyle="background-color:var(--mud-palette-background-grey)" Items="@cv.Skills" Hover="true" LoadingProgressColor="Color.Info">
-                            <ColGroup>
-                                <col style="width: 60px;" />
-                                <col />
-                                <col />
-                                <col />
-                                <col />
-                                <col />
-                            </ColGroup>
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Skill Name</MudTh>
-                                <MudTh>Description</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <GroupHeaderTemplate>
-                                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"Type: {context.Key}")</MudTh>
-                                </GroupHeaderTemplate>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Id">@GetSkillsRowNumber(context)</MudTd>
-                                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                                    <MudTd DataLabel="Description">@context.Description</MudTd>
-                                    <MudTd>
-                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteSkill(context))" Color="Color.Primary"></MudIconButton>
-                                    </MudTd>
-                                </RowTemplate>
-                                <RowEditingTemplate>
-                                    <MudTd DataLabel="#">@GetSkillsRowNumber(context)</MudTd>
-                                    <MudTd DataLabel="Tag Name">
-                                        <MudTextField @bind-Value="@context.Tag" Required />
-                                    </MudTd>
-                                    <MudTd DataLabel="Name">
-                                        <MudTextField @bind-Value="@context.Name" Required />
-                                    </MudTd>
-                                    <MudTd DataLabel="Description">
-                                        <MudTextField Lines="3" @bind-Value="@context.Description" Required />
-                                    </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>
-                    }
-                    <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12" md="6">
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudForm>
+                        </MudCardContent>
+                    </MudCard>
+                </MudTabPanel>
+                <MudTabPanel Text="Summary">
+                    <CardSummary cv="cv"/>
+                </MudTabPanel>
+                <MudTabPanel Text="Experience">
+                    <CardExperience cv="cv"/>
+                </MudTabPanel>
+                <MudTabPanel Text="Education">
+                    <CardEducation cv="cv"/>
+                </MudTabPanel>
+                <MudTabPanel Text="Skills">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Skills list</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @if (cv.Skills.Count > 0)
+                            {
+                                <MudTable OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", MudBlazor.Severity.Success))" CanCancelEdit="true"
+                                      RowEditPreview="@BackupSkill" RowEditCancel="@ResetSkillToOriginalValues" RowEditCommit="@SkillHasBeenCommitted"
+                                      Elevation="0" GroupBy="@_groupDefinition" GroupHeaderStyle="background-color:var(--mud-palette-background-grey)" Items="@cv.Skills" Hover="true" LoadingProgressColor="Color.Info">
+                                    <HeaderContent>
+                                        <MudTh>#</MudTh>
+                                        <MudTh>Skill Name</MudTh>
+                                        <MudTh>Description</MudTh>
+                                        <MudTh></MudTh>
+                                    </HeaderContent>
+                                    <GroupHeaderTemplate>
+                                        <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"Type: {context.Key}")</MudTh>
+                                        </GroupHeaderTemplate>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Id">@GetSkillsRowNumber(context)</MudTd>
+                                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                                            <MudTd DataLabel="Description">@context.Description</MudTd>
+                                            <MudTd>
+                                                <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteSkill(context))" Color="Color.Primary"></MudIconButton>
+                                            </MudTd>
+                                        </RowTemplate>
+                                        <RowEditingTemplate>
+                                            <MudTd DataLabel="#">@GetSkillsRowNumber(context)</MudTd>
+                                            <MudTd DataLabel="Tag Name">
+                                                <MudTextField @bind-Value="@context.Tag" Required />
+                                            </MudTd>
+                                            <MudTd DataLabel="Name">
+                                                <MudTextField @bind-Value="@context.Name" Required />
+                                            </MudTd>
+                                            <MudTd DataLabel="Description">
+                                                <MudTextField Lines="3" @bind-Value="@context.Description" Required />
+                                            </MudTd>
+                                        </RowEditingTemplate>
+                                    </MudTable>
+                            }
+                            <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
+                                <DataAnnotationsValidator />
+                                <MudCard Elevation="0">
+                                    <MudCardContent>
                                         <MudTextField T="string" For="@(() => skill_model.Tag)" Label="Tag" @bind-Value="@skill_model.Tag" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="6">
                                         <MudTextField T="string" For="@(() => skill_model.Name)" Label="Skill name" @bind-Value="@skill_model.Name" />
-                                    </MudItem>
-                                    <MudItem xs="12">
                                         <MudTextField Lines="3" T="string" Label="Details" For="@(() => skill_model.Description)" @bind-Value="@skill_model.Description" />
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add skill</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-            </MudCard>
+                                    </MudCardContent>
+                                    <MudCardActions>
+                                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add skill</MudButton>
+                                    </MudCardActions>
+                                </MudCard>
+                            </EditForm>
+                        </MudCardContent>
+                    </MudCard>
+                </MudTabPanel>
+                <MudTabPanel Text="References">
+                    <CardReference cv="cv"/>
+                </MudTabPanel>
+            </MudTabs>
         </MudItem>
-        <MudItem xs="12">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">References list</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (cv.References.Count > 0)
-                    {
-                        <MudTable Elevation="0" OnCommitEditClick="@(() => Snackbar.Add("Edited successfully", Severity.Success))" CanCancelEdit="true"
-                              RowEditPreview="@BackupReference" RowEditCancel="@ResetReferenceToOriginalValues" RowEditCommit="@ReferenceHasBeenCommitted"
-                              Items="@cv.References" Hover="true" LoadingProgressColor="Color.Info">
-                            @*<ColGroup>
-                        <col style="width:50px;" />
-                        <col />
-                        <col />
-                        <col />
-                        <col />
-                        <col style="width:50px;" />
-                        </ColGroup>*@
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Person Name</MudTh>
-                                <MudTh>Ocuppation</MudTh>
-                                <MudTh>Company name</MudTh>
-                                <MudTh>Email</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Id">@GetReferencesRowNumber(context)d</MudTd>
-                                <MudTd DataLabel="Name">@context.PersonName</MudTd>
-                                <MudTd DataLabel="Occupation">@context.Occupation</MudTd>
-                                <MudTd DataLabel="CompanyName">@context.CompanyName</MudTd>
-                                <MudTd DataLabel="Email">@context.Email</MudTd>
-                                <MudTd>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@((e) => DeleteReference(context))" Color="Color.Primary"></MudIconButton>
-                                </MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
-                                <MudTd DataLabel="#">@GetReferencesRowNumber(context)</MudTd>
-                                <MudTd DataLabel="Person Name">
-                                    <MudTextField @bind-Value="@context.PersonName" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Occupation">
-                                    <MudTextField @bind-Value="@context.Occupation" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Comapany name">
-                                    <MudTextField @bind-Value="@context.CompanyName" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Email">
-                                    <MudTextField @bind-Value="@context.Email" Required />
-                                </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>
-                    }
-                    <EditForm OnValidSubmit="AddReference" Model="@reference_model">
-                        <DataAnnotationsValidator />
-                        <MudCard Elevation="0">
-                            <MudCardContent>
-                                <MudGrid>
-                                    <MudItem xs="12" md="6">
-                                        <MudTextField T="string" For="@(() => reference_model.PersonName)" Label="Name" @bind-Value="@reference_model.PersonName" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="6">
-                                        <MudTextField T="string" Label="Occupation" For="@(() => reference_model.Occupation)" @bind-Value="@reference_model.Occupation" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="6">
-                                        <MudTextField T="string" For="@(() => reference_model.CompanyName)" Label="Company name" @bind-Value="@reference_model.CompanyName" />
-                                    </MudItem>
-                                    <MudItem xs="12" md="6">
-                                        <MudTextField T="string" Label="Email" For="@(() => reference_model.Email)" @bind-Value="@reference_model.Email" />
-                                    </MudItem>
-                                </MudGrid>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">Add Reference</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </EditForm>
-                </MudCardContent>
-            </MudCard>
+        <MudItem xs="12" md="6">
+            <MudPaper Height="100%" Width="100%">
+                <MudContainer Fixed="true">
+                    <MudPaper Height="100%" Width="100%" Square="true" Class="mud-theme-primary"></MudPaper>
+                </MudContainer>
+            </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -493,22 +130,14 @@
 
 @code {
     //Profile _profile = new();
+    bool cvform_valid = false;
     public bool Saving { get; set; }
     CV cv = new();
-    public int? GetSummaryRowNumber(object element) => cv.ResumeSummary?.TakeWhile(x => x != element).Count() + 1;
-    public int? GetWorkExpRowNumber(object element) => cv.WorkExperiences?.TakeWhile(x => x != element).Count() + 1;
-
-    public int? GetEducationRowNumber(object element) => cv.Educations?.TakeWhile(x => x != element).Count() + 1;
 
     public int? GetSkillsRowNumber(object element) => cv.Skills?.TakeWhile(x => x != element).Count() + 1;
-    public int? GetReferencesRowNumber(object element) => cv.References?.TakeWhile(x => x != element).Count() + 1;
-
-    private ResumeItem summary_model = new ResumeItem();
-    private WorkExperience experience_model = new WorkExperience();
-    private Education education_model = new Education();
+        
     private Skill skill_model = new Skill();
     private WorkReference reference_model = new WorkReference();
-
 
     private TableGroupDefinition<Skill> _groupDefinition = new()
         {
@@ -534,243 +163,13 @@
     //    }
     //}
     private List<string> editEvents = new();
-    private ResumeItem summaryBeforeEdit;
-    private WorkExperience workExperienceBeforeEdit;
-    private Education educationBeforeEdit;
     private Skill skillBeforeEdit;
-    private WorkReference referenceBeforeEdit;
     #region Summary
 
     private void AddEditionEvent(string message)
     {
         editEvents.Add(message);
         StateHasChanged();
-    }
-
-    private void BackupSummary(object element)
-    {
-        summaryBeforeEdit = new()
-            {
-                Summary = ((ResumeItem)element).Summary
-            };
-        AddEditionEvent($"RowEditPreview event: made a backup of Element {((ResumeItem)element).Summary}");
-    }
-
-    private void SummaryHasBeenCommitted(object element)
-    {
-        AddEditionEvent($"RowEditCommit event: Changes to Element {((ResumeItem)element).Summary} committed");
-    }
-
-    private void ResetSummaryToOriginalValues(object element)
-    {
-        ((ResumeItem)element).Summary = summaryBeforeEdit.Summary;
-        AddEditionEvent($"RowEditCancel event: Editing of Summary {((ResumeItem)element).Summary} cancelled");
-    }
-    async Task AddSummaryItem()
-    {
-        //var parameters = new DialogParameters
-        //    {
-        //        ["P_resume"] = new ResumeItem(),
-        //        ["Operation"] = "ADD",
-        //        ["ReadOnly"] = false
-        //    };
-        //var dialog = DialogService.Show<SummaryDataDialog>("Creating Summary item", parameters);
-        //var result = await dialog.Result;
-
-        //if (!result.Cancelled)
-        //{
-        //    ResumeItem item = new ResumeItem();
-        //    item.Summary = ((ResumeItem)result.Data).Summary;
-        //    item.Id = cv.ResumeSummary.Count + 1;
-        //    cv.ResumeSummary.Add(item);
-        //}
-        try
-        {
-            cv.ResumeSummary.Add(summary_model);
-            summary_model = new ResumeItem();
-            Snackbar.Add("Summary inserted", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-
-    async Task EditSummaryItem(ResumeItem item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["P_resume"] = item,
-                ["Operation"] = "UPDATE",
-                ["ReadOnly"] = false
-            };
-        var dialog = DialogService.Show<SummaryDataDialog>("Editing Summary item", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            item.Summary = ((ResumeItem)result.Data).Summary;
-        }
-    }
-
-    async Task DeleteSummaryItem(ResumeItem item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["P_resume"] = item,
-                ["Operation"] = "DELETE",
-                ["ReadOnly"] = true
-            };
-        var dialog = DialogService.Show<SummaryDataDialog>("Deleting Summary item", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            int idSummary = ((ResumeItem)result.Data).Id;
-            ResumeItem? re = cv.ResumeSummary.Find(r => r.Id == idSummary);
-            if (re != null)
-            {
-                cv.ResumeSummary.Remove(re);
-            }
-        }
-    }
-    #endregion
-
-    #region WorkExperience
-    private void BackupWorkExp(object element)
-    {
-        workExperienceBeforeEdit = new()
-            {
-                CompanyName = ((WorkExperience)element).CompanyName,
-                CompanyCountry = ((WorkExperience)element).CompanyCountry,
-                Occupation = ((WorkExperience)element).Occupation,
-                StartDate = ((WorkExperience)element).StartDate,
-                EndDate = ((WorkExperience)element).EndDate,
-                IsCurrent = ((WorkExperience)element).IsCurrent,
-            };
-        AddEditionEvent($"RowEditPreview event: made a backup of WorkExperience {((WorkExperience)element).CompanyName}");
-    }
-
-    private void WorkExpHasBeenCommitted(object element)
-    {
-        AddEditionEvent($"RowEditCommit event: Changes to WorkExperience {((WorkExperience)element).CompanyName} committed");
-    }
-
-    private void ResetWorkExperienceToOriginalValues(object element)
-    {
-        ((WorkExperience)element).CompanyName = workExperienceBeforeEdit.CompanyName;
-        ((WorkExperience)element).CompanyCountry = workExperienceBeforeEdit.CompanyCountry;
-        ((WorkExperience)element).Occupation = workExperienceBeforeEdit.Occupation;
-        ((WorkExperience)element).StartDate = workExperienceBeforeEdit.StartDate;
-        ((WorkExperience)element).EndDate = workExperienceBeforeEdit.EndDate;
-        ((WorkExperience)element).IsCurrent = workExperienceBeforeEdit.IsCurrent;
-        AddEditionEvent($"RowEditCancel event: Editing of Experience {((WorkExperience)element).CompanyName} cancelled");
-    }
-    async Task AddWorkExperience()
-    {
-        try
-        {
-            cv.WorkExperiences.Add(experience_model);
-            experience_model = new WorkExperience();
-            Snackbar.Add("Experience inserted", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-
-    async Task DeleteWorkExperience(WorkExperience item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["P_workexperience"] = item,
-                ["Operation"] = "DELETE",
-                ["ReadOnly"] = true,
-                ["StartDate"] = item.StartDate,
-                ["EndDate"] = item.EndDate,
-            };
-        var dialog = DialogService.Show<WorkExperienceDataDialog>("Deleting work experience", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            int Id = ((WorkExperience)result.Data).Id;
-            WorkExperience? we = cv.WorkExperiences.Find(r => r.Id == Id);
-            if (we != null)
-            {
-                cv.WorkExperiences.Remove(we);
-            }
-        }
-    }
-    #endregion
-
-    #region Education
-    private void BackupEducation(object element)
-    {
-        educationBeforeEdit = new()
-            {
-                Institute = ((Education)element).Institute,
-                InstituteCountry = ((Education)element).InstituteCountry,
-                Degree = ((Education)element).Degree,
-                StartDate = ((Education)element).StartDate,
-                EndDate = ((Education)element).EndDate,
-                IsCurrent = ((Education)element).IsCurrent,
-            };
-        AddEditionEvent($"RowEditPreview event: made a backup of Education {((Education)element).Institute}");
-    }
-
-    private void EducationHasBeenCommitted(object element)
-    {
-        AddEditionEvent($"RowEditCommit event: Changes to Education {((Education)element).Institute} committed");
-    }
-
-    private void ResetEducationToOriginalValues(object element)
-    {
-        ((Education)element).Institute = educationBeforeEdit.Institute;
-        ((Education)element).InstituteCountry = educationBeforeEdit.InstituteCountry;
-        ((Education)element).Degree = educationBeforeEdit.Degree;
-        ((Education)element).StartDate = educationBeforeEdit.StartDate;
-        ((Education)element).EndDate = educationBeforeEdit.EndDate;
-        ((Education)element).IsCurrent = educationBeforeEdit.IsCurrent;
-        AddEditionEvent($"RowEditCancel event: Editing of Education {((Education)element).Institute} cancelled");
-    }
-    async Task AddEducation()
-    {
-        try
-        {
-            cv.Educations.Add(education_model);
-            education_model = new Education();
-            Snackbar.Add("Education inserted", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-
-    async Task DeleteEducation(Education item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["P_education"] = item,
-                ["Operation"] = "DELETE",
-                ["ReadOnly"] = true,
-                ["StartDate"] = item.StartDate,
-                ["EndDate"] = item.EndDate,
-            };
-        var dialog = DialogService.Show<EducationDataDialog>("Deleting education", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            int Id = ((Education)result.Data).Id;
-            Education? we = cv.Educations.Find(r => r.Id == Id);
-            if (we != null)
-            {
-                cv.Educations.Remove(we);
-            }
-        }
     }
     #endregion
 
@@ -804,11 +203,11 @@
         {
             cv.Skills.Add(skill_model);
             skill_model = new Skill() { Tag = skill_model.Tag };
-            Snackbar.Add("Skill inserted", Severity.Success);
+            Snackbar.Add("Skill inserted", MudBlazor.Severity.Success);
         }
         catch (Exception ex)
         {
-            Snackbar.Add(ex.Message, Severity.Error);
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
         }
     }
 
@@ -836,66 +235,7 @@
     #endregion
 
     #region References
-    private void BackupReference(object element)
-    {
-        referenceBeforeEdit = new()
-            {
-                PersonName = ((WorkReference)element).PersonName,
-                CompanyName = ((WorkReference)element).CompanyName,
-                Occupation = ((WorkReference)element).Occupation,
-                Email = ((WorkReference)element).Email
-            };
-        AddEditionEvent($"RowEditPreview event: made a backup of WorkReference {((WorkReference)element).PersonName}");
-    }
-
-    private void ReferenceHasBeenCommitted(object element)
-    {
-        AddEditionEvent($"RowEditCommit event: Changes to Reference {((WorkReference)element).PersonName} committed");
-    }
-
-    private void ResetReferenceToOriginalValues(object element)
-    {
-        ((WorkReference)element).PersonName = referenceBeforeEdit.PersonName;
-        ((WorkReference)element).CompanyName = referenceBeforeEdit.CompanyName;
-        ((WorkReference)element).Occupation = referenceBeforeEdit.Occupation;
-        ((WorkReference)element).Email = referenceBeforeEdit.Email;
-        AddEditionEvent($"RowEditCancel event: Editing of Reference {((WorkReference)element).PersonName} cancelled");
-    }
-    async Task AddReference()
-    {
-        try
-        {
-            cv.References.Add(reference_model);
-            reference_model = new WorkReference();
-            Snackbar.Add("Work reference inserted", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-
-    async Task DeleteReference(WorkReference item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["P_reference"] = item,
-                ["Operation"] = "DELETE",
-                ["ReadOnly"] = true,
-            };
-        var dialog = DialogService.Show<WorkreferenceDataDialog>("Deleting reference", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
-        {
-            int Id = ((WorkReference)result.Data).Id;
-            WorkReference? we = cv.References.Find(r => r.Id == Id);
-            if (we != null)
-            {
-                cv.References.Remove(we);
-            }
-        }
-    }
+    
     #endregion
 
     async Task SaveChanges()

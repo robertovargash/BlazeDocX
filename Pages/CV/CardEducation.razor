@@ -1,0 +1,122 @@
+﻿   @inject IDialogService DialogService
+    @inject ISnackbar Snackbar
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Education</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (!editing_education)
+        {
+            @foreach (var education in cv.Educations)
+            {
+                <MudCard Outlined="true" Class="mt-1">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Primary">@education.Institute.ToString()[0].ToString().ToUpper()</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">@($"{education.Institute} {education.InstituteCountry}")</MudText>
+                                <MudText Typo="Typo.body2">@education.Degree</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton @onclick="@(() => EditEducation(education))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                                <MudIconButton @onclick="@(() => DeleteEducation(education))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                    </MudCard>
+            }
+            <MudButton OnClick="(() => editing_education = adding_education = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+            <EditForm OnValidSubmit="AddEducation" Model="@education_model">
+                <DataAnnotationsValidator />
+                <MudCard Elevation="0">
+                    <MudCardContent>
+                        <MudTextField T="string" For="@(() => education_model.Institute)" Label="Institute Name" @bind-Value="@education_model.Institute" />
+                        <MudTextField T="string" For="@(() => education_model.InstituteCountry)" Label="Institute location" @bind-Value="@education_model.InstituteCountry" />
+                        <MudTextField T="string" Label="Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
+                        <MudDatePicker DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
+                        @if (!education_model.IsCurrent)
+                        {
+                            <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
+                        }
+                        <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">CURRENT</MudSwitch>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+        }
+    </MudCardContent>
+</MudCard>
+
+
+@code {
+    bool adding_education, editing_education = false;
+    private Education education_model = new Education();
+    [Parameter] public CV cv { get; set; }
+
+    async Task Cancel(){
+        adding_education = false;
+        editing_education = false;
+        education_model = new Education();
+    }
+
+    async Task AddEducation()
+    {
+        try
+        {
+            if (adding_education)
+            {
+                cv.Educations.Add(education_model);
+                education_model = new Education();
+                editing_education = false;
+                adding_education = false;
+                Snackbar.Add("Education inserted", MudBlazor.Severity.Success);
+            }
+            if (editing_education)
+            {
+                editing_education = false;
+                adding_education = false;
+                education_model = new Education();
+                Snackbar.Add("Education updated", MudBlazor.Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+    }
+
+    async Task EditEducation(Education item)
+    {
+        adding_education = false;
+        editing_education = true;
+        education_model = item;
+    }
+
+    async Task DeleteEducation(Education item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_education"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<EducationDataDialog>("Deleting education", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            cv.Educations.Remove(item);
+        }
+    }
+}

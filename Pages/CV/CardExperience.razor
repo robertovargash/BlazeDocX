@@ -1,0 +1,120 @@
+﻿@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Class="mt-2 ml-2" Typo="Typo.h6">Work Experience</MudText>
+@if (!editing_experience)
+{
+    foreach (var experience in cv.WorkExperiences)
+    {
+        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2 mx-2 my-2">
+            <MudGrid Class="m-1">
+                <MudItem Class="d-none d-sm-flex align-self-center">
+                    <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
+                </MudItem>
+                <MudItem Style="width:60%;" Class="align-self-center">
+                    <MudGrid>
+                        <MudItem>
+                            <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
+                            <MudText Typo="Typo.subtitle2">@experience.CompanyCountry</MudText>
+                            <MudText Typo="Typo.caption">@experience.Occupation</MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+                <MudSpacer />
+                <MudItem Class="align-self-center" Style="width:25%;">
+                    <MudIconButton @onclick="@(() => EditWorkExperience(experience))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                    <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    }
+    <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
+}
+else
+{
+    <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">Back</MudButton>
+    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model" class="mt-2">
+        <DataAnnotationsValidator />
+        <MudCard Elevation="0">
+            <MudCardContent>
+                <MudTextField T="string" For="@(() => experience_model.CompanyName)" Label="Company Name" @bind-Value="@experience_model.CompanyName" />
+                <MudTextField T="string" For="@(() => experience_model.CompanyCountry)" Label="Company location" @bind-Value="@experience_model.CompanyCountry" />
+                <MudTextField T="string" Label="Occupation" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
+                @if (!experience_model.IsCurrent)
+                {
+                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
+                }
+                <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">CURRENT</MudSwitch>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+}
+
+
+@code {
+    bool adding_experience, editing_experience = false;
+    private WorkExperience experience_model = new WorkExperience();
+    [Parameter] public CV cv { get; set; }
+
+    async Task Cancel()
+    {
+        adding_experience = false;
+        editing_experience = false;
+        experience_model = new WorkExperience();
+    }
+
+    async Task AddWorkExperience()
+    {
+        try
+        {
+            if (adding_experience)
+            {
+                cv.WorkExperiences.Add(experience_model);
+                experience_model = new WorkExperience();
+                editing_experience = false;
+                adding_experience = false;
+                Snackbar.Add("Experience inserted", MudBlazor.Severity.Success);
+            }
+            if (editing_experience)
+            {
+                editing_experience = false;
+                adding_experience = false;
+                experience_model = new WorkExperience();
+                Snackbar.Add("Experience updated", MudBlazor.Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+    }
+
+    async Task EditWorkExperience(WorkExperience item)
+    {
+        adding_experience = false;
+        editing_experience = true;
+        experience_model = item;
+    }
+
+    async Task DeleteWorkExperience(WorkExperience item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["P_workexperience"] = item,
+                ["Operation"] = "DELETE",
+                ["ReadOnly"] = true,
+                ["StartDate"] = item.StartDate,
+                ["EndDate"] = item.EndDate,
+            };
+        var dialog = DialogService.Show<WorkExperienceDataDialog>("Deleting work experience", parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            cv.WorkExperiences.Remove(item);
+        }
+    }
+}

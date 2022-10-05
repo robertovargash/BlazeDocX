@@ -14,7 +14,7 @@ namespace BlazeDocX.Models
         [Required(ErrorMessage = "Required field")]
         public DateTime? StartDate { get; set; }
         [RequiredIf("IsCurrent", false, ErrorMessage = "EndDate field is required or just select CURRENT")]
-        public DateTime? EndDate { get; set; } = DateTime.MinValue;
+        public DateTime? EndDate { get; set; }
         public bool IsCurrent { get; set; }
     }
 }
