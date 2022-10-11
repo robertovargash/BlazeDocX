@@ -2,47 +2,20 @@
 @inject ISnackbar Snackbar
 
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Education</MudText>
-@if (!editing_education)
+@if (cv.Educations.Count == 0)
 {
-    <MudButton OnClick="(() => editing_education = adding_education = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
-    @foreach (var education in cv.Educations)
-    {
-        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-            <MudGrid Class="m-1">
-                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditEducation(education))">
-                    <MudAvatar Color="Color.Primary">@education.Institute.ToString()[0].ToString().ToUpper()</MudAvatar>
-                </MudItem>
-                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditEducation(education))">
-                    <MudGrid>
-                        <MudItem>
-                            <MudText Typo="Typo.subtitle2"><b>@education.Institute</b></MudText>
-                            <MudText Typo="Typo.subtitle2">@education.InstituteCountry</MudText>
-                            <MudText Typo="Typo.caption">@education.Degree</MudText>
-                        </MudItem>
-                    </MudGrid>
-                </MudItem>
-                <MudSpacer />
-                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                    <MudIconButton @onclick="@(() => DeleteEducation(education))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    }
-}
-else
-{
-    <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+    adding_education = editing_education = true;
     <EditForm OnValidSubmit="AddEducation" Model="@education_model">
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField T="string" For="@(() => education_model.Institute)" Label="Institute Name" @bind-Value="@education_model.Institute" />
-                <MudTextField T="string" For="@(() => education_model.InstituteCountry)" Label="Institute location" @bind-Value="@education_model.InstituteCountry" />
-                <MudTextField T="string" Label="Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
-                <MudDatePicker DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.School" T="string" For="@(() => education_model.Institute)" Label="Institute Name" @bind-Value="@education_model.Institute" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => education_model.InstituteCountry)" Label="Institute location" @bind-Value="@education_model.InstituteCountry" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Engineering" T="string" Label="Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
+                <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
                 @if (!education_model.IsCurrent)
                 {
-                    <MudDatePicker DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
+                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
                 }
                 <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">CURRENT</MudSwitch>
             </MudCardContent>
@@ -51,6 +24,59 @@ else
             </MudCardActions>
         </MudCard>
     </EditForm>
+}
+else
+{
+    @if (!editing_education)
+    {
+        <MudButton OnClick="(() => editing_education = adding_education = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
+        @foreach (var education in cv.Educations)
+        {
+            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                <MudGrid Class="m-1">
+                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditEducation(education))">
+                        <MudAvatar Color="Color.Primary">@education.Institute.ToString()[0].ToString().ToUpper()</MudAvatar>
+                    </MudItem>
+                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditEducation(education))">
+                        <MudGrid>
+                            <MudItem>
+                                <MudText Typo="Typo.subtitle2"><b>@education.Institute</b></MudText>
+                                <MudText Typo="Typo.subtitle2">@education.InstituteCountry</MudText>
+                                <MudText Typo="Typo.caption">@education.Degree</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                    <MudSpacer />
+                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                        <MudIconButton @onclick="@(() => DeleteEducation(education))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    }
+    else
+    {
+        <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+        <EditForm OnValidSubmit="AddEducation" Model="@education_model">
+            <DataAnnotationsValidator />
+            <MudCard Elevation="0">
+                <MudCardContent>
+                    <MudTextField T="string" For="@(() => education_model.Institute)" Label="Institute Name" @bind-Value="@education_model.Institute" />
+                    <MudTextField T="string" For="@(() => education_model.InstituteCountry)" Label="Institute location" @bind-Value="@education_model.InstituteCountry" />
+                    <MudTextField T="string" Label="Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
+                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
+                    @if (!education_model.IsCurrent)
+                    {
+                        <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
+                    }
+                    <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">CURRENT</MudSwitch>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    }
 }
 
 @code {
@@ -82,7 +108,7 @@ else
                 editing_education = false;
                 adding_education = false;
                 education_model = new Education();
-                Snackbar.Add("Education updated", MudBlazor.Severity.Success);
+                Snackbar.Add("Education updated", MudBlazor.Severity.Warning);
             }
         }
         catch (Exception ex)
@@ -114,6 +140,7 @@ else
         if (!result.Cancelled)
         {
             cv.Educations.Remove(item);
+            Snackbar.Add("Education deleted", MudBlazor.Severity.Error);
         }
     }
 }

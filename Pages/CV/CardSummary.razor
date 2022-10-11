@@ -2,45 +2,63 @@
 @inject ISnackbar Snackbar
 
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Resume Summary</MudText>
-@if (!editing_summary)
+@if (cv.ResumeSummary.Count == 0)
 {
-    <MudButton OnClick="@(() => editing_summary = adding_summary = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
-    foreach (var summary in cv.ResumeSummary)
-    {
-        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-            <MudGrid Class="m-1">
-                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditSummaryItem(summary))">
-                    <MudAvatar Color="Color.Primary">@summary.Summary.ToString()[0].ToString().ToUpper()</MudAvatar>
-                </MudItem>
-                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditSummaryItem(summary))">
-                    <MudGrid>
-                        <MudItem>
-                            <MudText Typo="Typo.subtitle2"><b>@summary.Summary</b></MudText>
-                        </MudItem>
-                    </MudGrid>
-                </MudItem>
-                <MudSpacer />
-                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                    <MudIconButton @onclick="@(() => DeleteSummaryItem(summary))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    }
-}
-else
-{
-    <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
-    <EditForm Model="@summary_model" OnValidSubmit="AddSummaryItem" class="mt-2">
+    editing_summary = adding_summary = true;
+    <EditForm Model="@summary_model" OnValidSubmit="AddSummaryItem">
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
             </MudCardContent>
             <MudCardActions>
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
             </MudCardActions>
         </MudCard>
     </EditForm>
+}
+else
+{
+    @if (!editing_summary)
+    {
+        <MudButton OnClick="@(() => editing_summary = adding_summary = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">ADD NEW</MudButton>
+        foreach (var summary in cv.ResumeSummary)
+        {
+            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                <MudGrid Class="m-1">
+                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditSummaryItem(summary))">
+                        <MudAvatar Color="Color.Primary">@summary.Summary.ToString()[0].ToString().ToUpper()</MudAvatar>
+                    </MudItem>
+                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditSummaryItem(summary))">
+                        <MudGrid>
+                            <MudItem>
+                                <MudText Typo="Typo.subtitle2"><b>@summary.Summary</b></MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                    <MudSpacer />
+                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                        <MudIconButton @onclick="@(() => DeleteSummaryItem(summary))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    }
+    else
+    {
+        <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+        <EditForm Model="@summary_model" OnValidSubmit="AddSummaryItem">
+            <DataAnnotationsValidator />
+            <MudCard Elevation="0">
+                <MudCardContent>
+                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    }
 }
 
 
@@ -71,8 +89,9 @@ else
             {
                 editing_summary = false;
                 summary_model = new ResumeItem();
-                Snackbar.Add("Summary updated", MudBlazor.Severity.Success);
+                Snackbar.Add("Summary updated", MudBlazor.Severity.Warning);
             }
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -101,6 +120,8 @@ else
         if (!result.Cancelled)
         {
             cv.ResumeSummary.Remove(item);
+            Snackbar.Add("Resume deleted", MudBlazor.Severity.Error);
+
         }
     }
 }

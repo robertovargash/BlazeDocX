@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\Home.razor" />
+  </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />

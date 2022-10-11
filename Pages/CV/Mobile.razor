@@ -1,0 +1,345 @@
+﻿@page "/"
+@inject IJSRuntime jsRuntime
+@inject CVCreator cvCreator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject ThemeManager themeManager
+
+<MudGrid Style="position:fixed; top:64px;">
+    <MudItem xs="12">
+        <MudToolBar>
+            <MudSpacer />
+            <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+@*<div id="header" class="d-inline" style="position:absolute; top:0px; left:0px; height:64px; right:0px;overflow:hidden;">
+    <div class="d-inline">
+        <img src="images/xceed_logo.svg" width="42" height="42" class="mr-4 d-inline" />
+    </div>
+    <div class="d-inline d-sx-none d-md-flex">
+        <MudText Typo="Typo.h5"><b>Xceed Words with .Net Blazor</b></MudText>
+    </div>
+    <div class="d-inline">
+        <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
+    </div>
+</div>*@
+
+@if (!contactInfo && !resume && !experience && !education && !skill && !reference)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:0px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Elevation="0" Outlined=true Class="mx-1 mt-1 pa-6 cursor-pointer" onclick="@(() => ShowContact())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Icon="@Icons.Material.Filled.AccountCircle" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Contact info</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowSummary())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.TextSnippet" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Resume</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowExperience())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.Work" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Work experience</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowEducation())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.School" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Education</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowSkills())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.Lightbulb" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Skills</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6" lg="4" xl="4" xxl="4">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowReferences())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Icon="@Icons.Material.Filled.Email" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5">Reference</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:0px; left:0px; right:0px; overflow:hidden;">
+    </div>
+}
+@if (contactInfo && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <MudText Class="mt-2 ml-2" Typo="Typo.h6">Contact Info</MudText>
+                <MudPaper Elevation="0" Class="mt-1">
+                    <MudForm @bind-IsValid="@cvform_valid" Model="@cv" ValidationDelay="0">
+                        <MudCard Elevation="0">
+                            <MudCardContent>
+                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.PersonOutline" For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="First Name" />
+                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Person" For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="Last Name" />
+                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="Occupation" />
+                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AlternateEmail" For="@(() => cv.Email)" @bind-Value="cv.Email" Label="Email" InputType="InputType.Email" />
+                            </MudCardContent>
+                        </MudCard>
+                    </MudForm>
+                </MudPaper>
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToRefences" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToResume" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (resume && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardSummary cv="cv" />
+            </MudPaper>
+        </MudContainer>
+
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToContactInfo" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToExperience" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (experience && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardExperience cv="cv" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToResume" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToEducation" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (education && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer >
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardEducation cv="cv" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToExperience" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToSkill" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (skill && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardSkill cv="cv" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToEducation" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToRefences" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (reference && !visible_list)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardReference cv="cv" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToSkill" />
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToContactInfo" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+
+@code {
+    //Profile _profile = new();
+    bool cvform_valid = false;
+    public bool Saving { get; set; }
+    CV cv = new();
+    bool contactInfo, resume, experience, education, skill, reference;
+    bool visible_list = true;
+
+    async Task GoBack()
+    {
+        visible_list = true;
+        contactInfo = resume = experience = education = skill = reference = false;
+    }
+
+    async Task ShowContact()
+    {
+        contactInfo = true;
+        visible_list = false;
+    }
+
+    async Task ShowSummary()
+    {
+        resume = true;
+        visible_list = false;
+    }
+    async Task ShowExperience()
+    {
+        experience = true;
+        visible_list = false;
+    }
+    async Task ShowEducation()
+    {
+        education = true;
+        visible_list = false;
+    }
+    async Task ShowSkills()
+    {
+        skill = true;
+        visible_list = false;
+    }
+    async Task ShowReferences()
+    {
+        reference = true;
+        visible_list = false;
+    }
+
+    async Task GoToResume()
+    {
+        await GoBack();
+        await ShowSummary();
+    }
+
+    async Task GoToExperience()
+    {
+        await GoBack();
+        await ShowExperience();
+    }
+
+    async Task GoToEducation()
+    {
+        await GoBack();
+        await ShowEducation();
+    }
+
+    async Task GoToSkill()
+    {
+        await GoBack();
+        await ShowSkills();
+    }
+
+    async Task GoToRefences()
+    {
+        await GoBack();
+        await ShowReferences();
+    }
+    async Task GoToContactInfo()
+    {
+        await GoBack();
+        await ShowContact();
+    }
+    async Task SaveChanges()
+    {
+        Saving = true;
+        await cvCreator.Create(cv);
+        Saving = false;
+    }
+}

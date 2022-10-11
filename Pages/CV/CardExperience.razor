@@ -2,44 +2,16 @@
 @inject ISnackbar Snackbar
 
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Work Experience</MudText>
-@if (!editing_experience)
+@if (cv.WorkExperiences.Count == 0)
 {
-    <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
-    foreach (var experience in cv.WorkExperiences)
-    {
-        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-            <MudGrid Class="m-1">
-                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditWorkExperience(experience))">
-                    <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
-                </MudItem>
-                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditWorkExperience(experience))">
-                    <MudGrid>
-                        <MudItem>
-                            <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
-                            <MudText Typo="Typo.subtitle2">@experience.CompanyCountry</MudText>
-                            <MudText Typo="Typo.caption">@experience.Occupation</MudText>
-                        </MudItem>
-                    </MudGrid>
-                </MudItem>
-                <MudSpacer />
-                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                    @*<MudIconButton @onclick="@(() => EditWorkExperience(experience))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />*@
-                    <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    }
-}
-else
-{
-    <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">Back</MudButton>
-    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model" class="mt-2">
+    adding_experience = editing_experience = true;
+    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField T="string" For="@(() => experience_model.CompanyName)" Label="Company Name" @bind-Value="@experience_model.CompanyName" />
-                <MudTextField T="string" For="@(() => experience_model.CompanyCountry)" Label="Company location" @bind-Value="@experience_model.CompanyCountry" />
-                <MudTextField T="string" Label="Occupation" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="Company Name" @bind-Value="@experience_model.CompanyName" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="Company location" @bind-Value="@experience_model.CompanyCountry" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="Occupation" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
                 <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
                 @if (!experience_model.IsCurrent)
                 {
@@ -52,6 +24,59 @@ else
             </MudCardActions>
         </MudCard>
     </EditForm>
+}
+else
+{
+    @if (!editing_experience)
+    {
+        <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
+        foreach (var experience in cv.WorkExperiences)
+        {
+            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                <MudGrid Class="m-1">
+                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditWorkExperience(experience))">
+                        <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
+                    </MudItem>
+                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditWorkExperience(experience))">
+                        <MudGrid>
+                            <MudItem>
+                                <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
+                                <MudText Typo="Typo.subtitle2">@experience.CompanyCountry</MudText>
+                                <MudText Typo="Typo.caption">@experience.Occupation</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                    <MudSpacer />
+                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                        <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    }
+    else
+    {
+        <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">Back</MudButton>
+        <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
+            <DataAnnotationsValidator />
+            <MudCard Elevation="0">
+                <MudCardContent>
+                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="Company Name" @bind-Value="@experience_model.CompanyName" />
+                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="Company location" @bind-Value="@experience_model.CompanyCountry" />
+                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="Occupation" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Start Date" Editable="true" Label="Start Date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
+                    @if (!experience_model.IsCurrent)
+                    {
+                        <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="Select End Date" Editable="true" Label="End Date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
+                    }
+                    <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">CURRENT</MudSwitch>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    }
 }
 
 
@@ -84,7 +109,7 @@ else
                 editing_experience = false;
                 adding_experience = false;
                 experience_model = new WorkExperience();
-                Snackbar.Add("Experience updated", MudBlazor.Severity.Success);
+                Snackbar.Add("Experience updated", MudBlazor.Severity.Warning);
             }
         }
         catch (Exception ex)
@@ -115,6 +140,8 @@ else
         if (!result.Cancelled)
         {
             cv.WorkExperiences.Remove(item);
+            Snackbar.Add("Work experience deleted", MudBlazor.Severity.Error);
+
         }
     }
 }
