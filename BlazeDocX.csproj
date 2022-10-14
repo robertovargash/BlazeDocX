@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Account.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\Budget\CardAccount.razor" />
     <Content Remove="Pages\Home.razor" />
   </ItemGroup>
 	
@@ -21,6 +26,7 @@
     <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
     <PackageReference Include="Xceed.Document.NET" Version="2.3.22263.20500" />
     <PackageReference Include="Xceed.Words.NET" Version="2.3.22263.20500" />
+    <PackageReference Include="Xceed.Workbooks.NET" Version="1.3.22471.15220" />
   </ItemGroup>
 
   <ItemGroup>

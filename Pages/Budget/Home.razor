@@ -1,0 +1,248 @@
+﻿@page "/"
+@inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ILocalStorageService localStorage
+
+<MudGrid Style="position:fixed; top:64px;">
+    <MudItem xs="12">
+        <MudToolBar>
+            <MudSpacer />
+            <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" OnClick="SaveData"/>
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+@if (!income_visible && !expense_visible && !charts_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:0px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="6">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowIncome())">
+                        <MudStack>
+                            <MudText Typo="Typo.h5" Color="Color.Success">Incomes</MudText>
+                            <MudPaper Elevation="0">
+                                <MudStack Row="true">
+                                    <MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Filled.AttachMoney"></MudIcon>
+                                    <MudText Typo="Typo.h5" Color="Color.Success">@CalculateIncomes()</MudText>
+                                </MudStack>
+                            </MudPaper>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="6">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowExpense())">
+                        <MudStack>
+                            <MudText Typo="Typo.h5" Color="Color.Secondary">Expenses</MudText>
+                            <MudPaper Elevation="0">
+                                <MudStack Row="true">
+                                    <MudIcon Size="Size.Large" Color="Color.Secondary" Icon="@Icons.Filled.AttachMoney"></MudIcon>
+                                    <MudText Typo="Typo.h5" Color="Color.Secondary">@CalculateExpenses()</MudText>
+                                </MudStack>
+                            </MudPaper>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowCharts())">
+                        <MudGrid>
+                            <MudItem Class="align-self-center">
+                                <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.BarChart" />
+                            </MudItem>
+                            <MudItem Class="align-self-center">
+                                <MudText Typo="Typo.h5" Class="d-inline">Charts</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:0px; left:0px; right:0px; overflow:hidden;">
+    </div>
+}
+@if (income_visible && !menu_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardIncome accounting="accounting" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    @*<MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToAccounts" />*@
+                    <MudSpacer />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToExpense" />
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (expense_visible && !menu_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <CardExpense accounting="accounting" />
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudToolBar>
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToIncome" />
+                    <MudSpacer />
+                    @*<MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToCharts" />*@
+                </MudToolBar>
+            </MudItem>
+        </MudGrid>
+    </div>
+}
+@if (charts_visible && !menu_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <MudChart ChartType="ChartType.Line" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="90%" Height="100%"></MudChart>
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <div id="footer" style="position:absolute; bottom:0px; height:0px; left:0px; right:0px; overflow:hidden;">
+    </div>
+}
+
+@code {
+    bool income_visible, expense_visible, charts_visible;
+    bool menu_visible = true;
+    public Accounting accounting { get; set; } = new Accounting();
+    private List<decimal> incomes = new List<decimal>();
+    private List<decimal> expenses = new List<decimal>();
+    private List<DateTime> dates = new List<DateTime>();
+    protected override async Task OnInitializedAsync()
+    {
+        var me = await localStorage.GetItemAsync<Accounting>("me");
+        if (me != null)
+        {
+            accounting = me;
+        }
+        else
+        {
+            accounting = new Accounting();
+        }
+    }
+
+    public List<ChartSeries> GetSeries()
+    {
+        incomes = new List<decimal>();
+        expenses = new List<decimal>();
+        dates = new List<DateTime>();
+        foreach (var income in accounting.Incomes.GroupBy(x => x.Date).Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) }).ToList())
+        {
+            incomes.Add(income.Value);
+            if (income.ID != null)
+            {
+                dates.Add((DateTime)income.ID);
+            }
+        }
+        foreach (var expense in accounting.Expenses.GroupBy(x => x.Date).Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) }).ToList())
+        {
+            expenses.Add(expense.Value);
+            if (expense.ID != null)
+            {
+                dates.Add((DateTime)expense.ID);
+            }
+        }
+        return new List<ChartSeries>()
+        {
+            new ChartSeries() { Name = "Incomes", Data = Array.ConvertAll(incomes.ToArray(),x => (double)x) },
+            new ChartSeries() { Name = "Expenses", Data = Array.ConvertAll(expenses.ToArray(),x => (double)x) }
+        };
+    }
+    public string[] XAxisLabels()
+    {
+        return dates.OrderBy(i => i).Select(x => x.ToString("dd/MM/yy")).ToArray();
+    }
+    public decimal CalculateIncomes()
+    {
+        decimal sum_income = accounting.Incomes.Select(t => t.Amount).Sum();
+        return sum_income;
+    }
+
+    public decimal CalculateExpenses()
+    {
+        decimal sum_income = accounting.Expenses.Select(t => t.Amount).Sum();
+        return sum_income;
+    }
+
+    #region MenuFunctions
+    async Task ShowIncome()
+    {
+        income_visible = true;
+        menu_visible = false;
+    }
+    async Task ShowExpense()
+    {
+        expense_visible = true;
+        menu_visible = false;
+    }
+    async Task ShowCharts()
+    {
+        charts_visible = true;
+        menu_visible = false;
+    }
+    async Task GoBack()
+    {
+        menu_visible = true;
+        income_visible = expense_visible = charts_visible = false;
+    }
+    #endregion
+
+    #region Navigation
+    async Task GoToIncome()
+    {
+        await GoBack();
+        await ShowIncome();
+    }
+
+    async Task GoToExpense()
+    {
+        await GoBack();
+        await ShowExpense();
+    }
+
+    async Task GoToCharts()
+    {
+        await GoBack();
+        await ShowCharts();
+    }
+    #endregion
+    async Task SaveData()
+    {
+        await localStorage.RemoveItemAsync("me");
+        await localStorage.SetItemAsync("me", accounting);
+        var me = await localStorage.GetItemAsync<Accounting>("me");
+        if (me != null)
+        {
+            accounting = me;
+        }
+        else
+        {
+            accounting = new Accounting();
+        }
+    }
+    async Task RemoveData()
+    {
+        await localStorage.RemoveItemAsync("me");
+        accounting = new Accounting();
+    }
+
+}

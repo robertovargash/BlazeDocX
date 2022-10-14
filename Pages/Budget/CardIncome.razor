@@ -1,0 +1,150 @@
+﻿@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+<MudText Class="mt-2 ml-2" Typo="Typo.h6">Incomes</MudText>
+@if (accounting.Incomes.Count == 0)
+{
+    adding_income = editing_income = true;
+    <EditForm OnValidSubmit="AddIncome" Model="@income_model">
+        <DataAnnotationsValidator />
+        <MudCard Elevation="0">
+            <MudCardContent>
+                <MudSelect @bind-Value="income_model.Category" Label="Select category" OpenIcon="@Icons.Filled.CurrencyExchange" AdornmentColor="Color.Primary">
+                    @foreach (IncomeCategory item in Enum.GetValues(typeof(IncomeCategory)))
+                    {
+                        <MudSelectItem Value="@item">@item</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Primary" T="decimal" For="@(() => income_model.Amount)" Label="Ammount" @bind-Value="@income_model.Amount" />
+                <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Date" Editable="true" Label="Date" For="@(() => income_model.Date)" @bind-Date="@income_model.Date" AdornmentColor="Color.Primary" />
+                <MudTextField Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => income_model.Details)" Label="Details" @bind-Value="@income_model.Details" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+}
+else
+{
+    @if (!editing_income)
+    {
+        <MudButton OnClick="(() => editing_income = adding_income = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
+        @foreach (var income in accounting.Incomes)
+        {
+            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                <MudGrid Class="m-1">
+                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
+                        <MudAvatar Color="Color.Primary">
+                            <MudIcon Icon="@Icons.Filled.AttachMoney" />
+                        </MudAvatar>
+                    </MudItem>
+                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
+                        <MudGrid>
+                            <MudItem>
+                                <MudText Typo="Typo.subtitle2"><b>@income.Category</b></MudText>
+                                <MudText Typo="Typo.subtitle2">@income.Amount</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                    <MudSpacer />
+                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                        <MudIconButton @onclick="@(() => DeleteIncome(income))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    }
+    else
+    {
+        <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+        <EditForm OnValidSubmit="AddIncome" Model="@income_model">
+            <DataAnnotationsValidator />
+            <MudCard Elevation="0">
+                <MudCardContent>
+                    <MudSelect @bind-Value="income_model.Category" Label="Select category" OpenIcon="@Icons.Filled.CurrencyExchange" AdornmentColor="Color.Primary">
+                        @foreach (IncomeCategory item in Enum.GetValues(typeof(IncomeCategory)))
+                        {
+                            <MudSelectItem Value="@item">@item</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Primary" T="decimal" For="@(() => income_model.Amount)" Label="Ammount" @bind-Value="@income_model.Amount" />
+                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Date" Editable="true" Label="Date" For="@(() => income_model.Date)" @bind-Date="@income_model.Date" AdornmentColor="Color.Primary" />
+                    <MudTextField Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => income_model.Details)" Label="Details" @bind-Value="@income_model.Details" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    }
+}
+
+
+@code {
+    [Parameter] public Accounting accounting { get; set; }
+
+
+    bool adding_income, editing_income = false;
+    private Income income_model = new Income() { Date = DateTime.Now };
+
+    async Task Cancel()
+    {
+        adding_income = false;
+        editing_income = false;
+        income_model = new Income(){ Date = DateTime.Now };
+    }
+
+    async Task AddIncome()
+    {
+        try
+        {
+            if (adding_income)
+            {
+                accounting.Incomes.Add(income_model);
+                income_model = new Income() { Date = DateTime.Now };
+                editing_income = false;
+                adding_income = false;
+                Snackbar.Add("Income inserted", MudBlazor.Severity.Success);
+            }
+            if (editing_income)
+            {
+                editing_income = false;
+                adding_income = false;
+                income_model = new Income(){ Date = DateTime.Now };
+                Snackbar.Add("Income updated", MudBlazor.Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+    }
+
+    async Task EditIncome(Income item)
+    {
+        adding_income = false;
+        editing_income = true;
+        income_model = item;
+    }
+
+    async Task DeleteIncome(Income item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"Do you really want to delete these income?");
+        parameters.Add("ButtonText", "Delete");
+        parameters.Add("Color", Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<DeleteItemDialog>("Delete", parameters, options);
+        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            accounting.Incomes.Remove(item);
+            Snackbar.Add("Income deleted", MudBlazor.Severity.Error);
+        }
+    }
+
+}
