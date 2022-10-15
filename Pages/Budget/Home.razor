@@ -3,13 +3,14 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject ILocalStorageService localStorage
+@inject AccountingManager manage
 
 <MudGrid Style="position:fixed; top:64px;">
     <MudItem xs="12">
         <MudToolBar>
             <MudSpacer />
             <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
-            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" OnClick="SaveData"/>
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary"/>
         </MudToolBar>
     </MudItem>
 </MudGrid>
@@ -121,22 +122,20 @@
 }
 
 @code {
+    private const string ACCOUNT_LOCAL_STORAGE = "accounting";
     bool income_visible, expense_visible, charts_visible;
     bool menu_visible = true;
     public Accounting accounting { get; set; } = new Accounting();
     private List<decimal> incomes = new List<decimal>();
     private List<decimal> expenses = new List<decimal>();
-    private List<DateTime> dates = new List<DateTime>();
+    private List<string> dates = new List<string>();
     protected override async Task OnInitializedAsync()
     {
-        var me = await localStorage.GetItemAsync<Accounting>("me");
-        if (me != null)
-        {
-            accounting = me;
-        }
-        else
+        accounting = await localStorage.GetItemAsync<Accounting>(ACCOUNT_LOCAL_STORAGE);
+        if (accounting == null)
         {
             accounting = new Accounting();
+            await localStorage.SetItemAsync(ACCOUNT_LOCAL_STORAGE, accounting);
         }
     }
 
@@ -144,22 +143,57 @@
     {
         incomes = new List<decimal>();
         expenses = new List<decimal>();
-        dates = new List<DateTime>();
-        foreach (var income in accounting.Incomes.GroupBy(x => x.Date).Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) }).ToList())
+        dates = new List<string>();
+        var groupedIncome = accounting.Incomes.OrderBy(x => x.Date)
+                 .GroupBy(inc => inc.Date) //group it by date
+                 .Select(groupedIncomeByDate =>
+                     new
+                     {
+                         Date = groupedIncomeByDate.Key,
+                         Amount = groupedIncomeByDate
+                                      .Sum(monthIncome => monthIncome.Amount),
+                         IsIncome = true
+                     }).ToList();
+
+        var groupedExpenses = accounting.Expenses.OrderBy(x => x.Date)
+                    .GroupBy(exp => exp.Date)//group it by date
+                    .Select(groupedExpenseByDate => 
+                        new { 
+                            Date = groupedExpenseByDate.Key, 
+                            Amount = groupedExpenseByDate
+                                         .Sum(monthExpense => monthExpense.Amount), 
+                            IsIncome = false }).ToList(); // marker for Concat/Union All
+
+        var result = groupedIncome.Concat(groupedExpenses).OrderBy(x => x.Date)
+                  .GroupBy(x => x.Date)
+                  .Select(r =>
+                               new
+                               {
+                                   Date = r.Key,
+                                   Income = r.Where(p => p.IsIncome).Sum(g => g.Amount),
+                                   Expense = r.Where(p => !p.IsIncome).Sum(g => g.Amount)
+                               }).ToList();
+
+
+        //var query1 = accounting.Expenses.OrderBy(x => x.Date).
+        //            GroupBy(x => x.Date).
+        //            Select(t => new { ID = t.Key, Value = 0 });
+
+        //var query2 = accounting.Incomes.OrderBy(x => x.Date).
+        //            GroupBy(x => x.Date).
+        //            Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) });
+
+        foreach (var income in result)
         {
-            incomes.Add(income.Value);
-            if (income.ID != null)
-            {
-                dates.Add((DateTime)income.ID);
-            }
+            incomes.Add(income.Income);
         }
-        foreach (var expense in accounting.Expenses.GroupBy(x => x.Date).Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) }).ToList())
+        foreach (var expense in result)
         {
-            expenses.Add(expense.Value);
-            if (expense.ID != null)
-            {
-                dates.Add((DateTime)expense.ID);
-            }
+            expenses.Add(expense.Expense);
+        }
+        foreach (var date in result)
+        {
+            dates.Add(((DateTime)date.Date).ToString("dd/MM/yyyy"));
         }
         return new List<ChartSeries>()
         {
@@ -169,7 +203,7 @@
     }
     public string[] XAxisLabels()
     {
-        return dates.OrderBy(i => i).Select(x => x.ToString("dd/MM/yy")).ToArray();
+        return dates.OrderBy(i => i).ToArray();
     }
     public decimal CalculateIncomes()
     {
@@ -225,24 +259,23 @@
         await ShowCharts();
     }
     #endregion
-    async Task SaveData()
-    {
-        await localStorage.RemoveItemAsync("me");
-        await localStorage.SetItemAsync("me", accounting);
-        var me = await localStorage.GetItemAsync<Accounting>("me");
-        if (me != null)
-        {
-            accounting = me;
-        }
-        else
-        {
-            accounting = new Accounting();
-        }
-    }
-    async Task RemoveData()
-    {
-        await localStorage.RemoveItemAsync("me");
-        accounting = new Accounting();
-    }
 
+    async Task RemoveData(){
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"Do you really want to delete ALL saved data?");
+        parameters.Add("ButtonText", "Delete");
+        parameters.Add("Color", Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<DeleteItemDialog>("Delete", parameters, options);
+        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await manage.RemoveData(accounting);
+            Snackbar.Add("Data rebooted", Severity.Error);
+        }       
+    }
 }

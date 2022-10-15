@@ -1,5 +1,7 @@
 ﻿@inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject AccountingManager manage
+
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Expenses</MudText>
 @if (accounting.Expenses.Count == 0)
 {
@@ -29,26 +31,26 @@ else
     @if (!editing_expense)
     {
         <MudButton OnClick="(() => editing_expense = adding_expense = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
-        @foreach (var income in accounting.Expenses)
+        @foreach (var expense in accounting.Expenses)
         {
             <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
                 <MudGrid Class="m-1">
-                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditExpense(income))">
+                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditExpense(expense))">
                         <MudAvatar Color="Color.Primary">
                             <MudIcon Icon="@Icons.Filled.AttachMoney" />
                         </MudAvatar>
                     </MudItem>
-                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditExpense(income))">
+                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditExpense(expense))">
                         <MudGrid>
                             <MudItem>
-                                <MudText Typo="Typo.subtitle2"><b>@income.Category</b></MudText>
-                                <MudText Typo="Typo.subtitle2">@income.Amount</MudText>
+                                <MudText Typo="Typo.subtitle2"><b>@expense.Category</b>  @(expense.Date != null ? ((DateTime)expense.Date).ToString("dd/MM/yyyy") : "10/10/2020")</MudText>
+                                <MudText Typo="Typo.subtitle2">@expense.Amount</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudItem>
                     <MudSpacer />
                     <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                        <MudIconButton @onclick="@(() => DeleteExpense(income))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                        <MudIconButton @onclick="@(() => DeleteExpense(expense))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
                     </MudItem>
                 </MudGrid>
             </MudPaper>
@@ -112,6 +114,7 @@ else
                 expense_model = new Expense() { Date = DateTime.Now };
                 Snackbar.Add("Expense updated", MudBlazor.Severity.Warning);
             }
+            await manage.SaveData(accounting);
         }
         catch (Exception ex)
         {
@@ -142,6 +145,7 @@ else
         if (!result.Cancelled)
         {
             accounting.Expenses.Remove(item);
+            await manage.SaveData(accounting);
             Snackbar.Add("Expense deleted", MudBlazor.Severity.Error);
         }
     }

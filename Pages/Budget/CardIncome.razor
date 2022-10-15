@@ -1,5 +1,7 @@
 ﻿@inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject AccountingManager manage
+
 <MudText Class="mt-2 ml-2" Typo="Typo.h6">Incomes</MudText>
 @if (accounting.Incomes.Count == 0)
 {
@@ -41,7 +43,7 @@ else
                     <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
                         <MudGrid>
                             <MudItem>
-                                <MudText Typo="Typo.subtitle2"><b>@income.Category</b></MudText>
+                                <MudText Typo="Typo.subtitle2"><b>@income.Category</b> @(income.Date != null ? ((DateTime)income.Date).ToString("dd/MM/yyyy") : "10/10/2020")</MudText>
                                 <MudText Typo="Typo.subtitle2">@income.Amount</MudText>
                             </MudItem>
                         </MudGrid>
@@ -113,6 +115,7 @@ else
                 income_model = new Income(){ Date = DateTime.Now };
                 Snackbar.Add("Income updated", MudBlazor.Severity.Warning);
             }
+            await manage.SaveData(accounting);
         }
         catch (Exception ex)
         {
@@ -143,6 +146,7 @@ else
         if (!result.Cancelled)
         {
             accounting.Incomes.Remove(item);
+            await manage.SaveData(accounting);
             Snackbar.Add("Income deleted", MudBlazor.Severity.Error);
         }
     }

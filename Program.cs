@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using Xceed.Words.NET;
+using Xceed.Document.NET;
 
-Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
+Xceed.Document.NET.Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddMudServices();
 
 builder.Services.AddSingleton<ProfileCreator>();
 builder.Services.AddSingleton<CVCreator>();
+//builder.Services.AddSingleton<AccountingManager>();
+builder.Services.AddScoped<AccountingManager>();
 
 
 builder.Services.AddBlazoredLocalStorage(config =>
