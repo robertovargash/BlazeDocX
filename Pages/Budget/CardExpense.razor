@@ -42,7 +42,7 @@ else
                     <MudGrid Class="m-1">
                         <MudItem Class="align-self-center cursor-pointer">
                             <MudAvatar Color="Color.Primary">
-                                <MudIcon>@CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.ToString()</MudIcon>
+                                @CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.ToString()
                             </MudAvatar>
                         </MudItem>
                         <MudItem Class="align-self-center cursor-pointer" Style="width: 60%;">

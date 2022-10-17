@@ -42,7 +42,7 @@ else
                     <MudGrid Class="m-1">
                         <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
                             <MudAvatar Color="Color.Primary">
-                                <MudIcon>@CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.ToString()</MudIcon>
+                                @CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.ToString()
                             </MudAvatar>
                         </MudItem>
                         <MudItem Class="align-self-center cursor-pointer" Style="width: 60%;">
@@ -50,7 +50,7 @@ else
                                 <b>@income.Category</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
                             </MudText>
                             <MudText Typo="Typo.subtitle2">
-                                @income.Amount.ToString("C2")
+                                @income.Amount.ToString("C2") 
                             </MudText>
                         </MudItem>
                         <MudSpacer />
