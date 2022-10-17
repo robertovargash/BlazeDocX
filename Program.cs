@@ -11,6 +11,7 @@ using Xceed.Words.NET;
 using Xceed.Document.NET;
 
 Xceed.Document.NET.Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
+Xceed.Workbooks.NET.Licenser.LicenseKey = "WBN13-2SKLF-RUWUK-C41A";
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddMudServices();
 builder.Services.AddSingleton<ProfileCreator>();
 builder.Services.AddSingleton<CVCreator>();
 //builder.Services.AddSingleton<AccountingManager>();
+builder.Services.AddSingleton<WorkBookCreator>();
+
 builder.Services.AddScoped<AccountingManager>();
 
 

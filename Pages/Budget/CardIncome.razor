@@ -1,8 +1,11 @@
-﻿@inject IDialogService DialogService
+﻿@using System.Globalization;
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject AccountingManager manage
 
-<MudText Class="mt-2 ml-2" Typo="Typo.h6">Incomes</MudText>
+<MudPaper Class="mt-2 mb-2 pa-2 mud-theme-success">
+    <MudText Typo="Typo.h6">Incomes</MudText>
+</MudPaper>
 @if (accounting.Incomes.Count == 0)
 {
     adding_income = editing_income = true;
@@ -31,30 +34,34 @@ else
     @if (!editing_income)
     {
         <MudButton OnClick="(() => editing_income = adding_income = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">New</MudButton>
-        @foreach (var income in accounting.Incomes)
-        {
-            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-                <MudGrid Class="m-1">
-                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
-                        <MudAvatar Color="Color.Primary">
-                            <MudIcon Icon="@Icons.Filled.AttachMoney" />
-                        </MudAvatar>
-                    </MudItem>
-                    <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
-                        <MudGrid>
-                            <MudItem>
-                                <MudText Typo="Typo.subtitle2"><b>@income.Category</b> @(income.Date != null ? ((DateTime)income.Date).ToString("dd/MM/yyyy") : "10/10/2020")</MudText>
-                                <MudText Typo="Typo.subtitle2">@income.Amount</MudText>
-                            </MudItem>
-                        </MudGrid>
-                    </MudItem>
-                    <MudSpacer />
-                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                        <MudIconButton @onclick="@(() => DeleteIncome(income))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        }
+        <MudList Clickable="true" Class="m-1">
+            @foreach (var income in accounting.Incomes)
+            {
+                <MudDivider />
+                <MudListItem Text="Inbox" AvatarClass="mud-theme-primary" OnClick="@(() => EditIncome(income))">
+                    <MudGrid Class="m-1">
+                        <MudItem Class="align-self-center cursor-pointer" @onclick="@(() => EditIncome(income))">
+                            <MudAvatar Color="Color.Primary">
+                                <MudIcon>@CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.ToString()</MudIcon>
+                            </MudAvatar>
+                        </MudItem>
+                        <MudItem Class="align-self-center cursor-pointer" Style="width: 60%;">
+                            <MudText Typo="Typo.subtitle2">
+                                <b>@income.Category</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                            </MudText>
+                            <MudText Typo="Typo.subtitle2">
+                                @income.Amount.ToString("C2")
+                            </MudText>
+                        </MudItem>
+                        <MudSpacer />
+                        <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                            <MudIconButton @onclick="@(() => DeleteIncome(income))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                        </MudItem>
+                    </MudGrid>
+                </MudListItem>
+            }
+            <MudDivider />
+        </MudList>
     }
     else
     {
@@ -69,9 +76,9 @@ else
                             <MudSelectItem Value="@item">@item</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Primary" T="decimal" For="@(() => income_model.Amount)" Label="Ammount" @bind-Value="@income_model.Amount" />
+                    <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Success" T="decimal" For="@(() => income_model.Amount)" Label="Ammount" @bind-Value="@income_model.Amount" />
                     <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="Select Date" Editable="true" Label="Date" For="@(() => income_model.Date)" @bind-Date="@income_model.Date" AdornmentColor="Color.Primary" />
-                    <MudTextField Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => income_model.Details)" Label="Details" @bind-Value="@income_model.Details" />
+                    <MudTextField Adornment="Adornment.End" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => income_model.Details)" Label="Details" @bind-Value="@income_model.Details" />
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
@@ -85,7 +92,6 @@ else
 @code {
     [Parameter] public Accounting accounting { get; set; }
 
-
     bool adding_income, editing_income = false;
     private Income income_model = new Income() { Date = DateTime.Now };
 
@@ -93,7 +99,7 @@ else
     {
         adding_income = false;
         editing_income = false;
-        income_model = new Income(){ Date = DateTime.Now };
+        income_model = new Income() { Date = DateTime.Now };
     }
 
     async Task AddIncome()
@@ -112,7 +118,7 @@ else
             {
                 editing_income = false;
                 adding_income = false;
-                income_model = new Income(){ Date = DateTime.Now };
+                income_model = new Income() { Date = DateTime.Now };
                 Snackbar.Add("Income updated", MudBlazor.Severity.Warning);
             }
             await manage.SaveData(accounting);

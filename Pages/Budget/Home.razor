@@ -4,13 +4,14 @@
 @inject ISnackbar Snackbar
 @inject ILocalStorageService localStorage
 @inject AccountingManager manage
+@inject WorkBookCreator workbook_creator;
 
 <MudGrid Style="position:fixed; top:64px;">
     <MudItem xs="12">
         <MudToolBar>
             <MudSpacer />
             <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
-            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary"/>
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" OnClick="SaveExcel" />
         </MudToolBar>
     </MudItem>
 </MudGrid>
@@ -25,7 +26,7 @@
                             <MudText Typo="Typo.h5" Color="Color.Success">Incomes</MudText>
                             <MudPaper Elevation="0">
                                 <MudStack Row="true">
-                                    <MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Filled.AttachMoney"></MudIcon>
+                                    @*<MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Filled.AttachMoney"></MudIcon>*@
                                     <MudText Typo="Typo.h5" Color="Color.Success">@CalculateIncomes()</MudText>
                                 </MudStack>
                             </MudPaper>
@@ -38,7 +39,7 @@
                             <MudText Typo="Typo.h5" Color="Color.Secondary">Expenses</MudText>
                             <MudPaper Elevation="0">
                                 <MudStack Row="true">
-                                    <MudIcon Size="Size.Large" Color="Color.Secondary" Icon="@Icons.Filled.AttachMoney"></MudIcon>
+                                    @*<MudIcon Size="Size.Large" Color="Color.Secondary" Icon="@Icons.Filled.AttachMoney"></MudIcon>*@
                                     <MudText Typo="Typo.h5" Color="Color.Secondary">@CalculateExpenses()</MudText>
                                 </MudStack>
                             </MudPaper>
@@ -69,17 +70,17 @@
         <MudContainer>
             <MudPaper Elevation="0" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardIncome accounting="accounting" />
-            </MudPaper>
-        </MudContainer>
-    </div>
+                    <CardIncome accounting="accounting" />
+                </MudPaper>
+            </MudContainer>
+        </div>
     <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
                     @*<MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToAccounts" />*@
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToExpense" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Secondary" Label="Expenses" OnClick="GoToExpense" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -99,7 +100,7 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToIncome" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Success" Label="Incomes" OnClick="GoToIncome" />
                     <MudSpacer />
                     @*<MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToCharts" />*@
                 </MudToolBar>
@@ -113,7 +114,9 @@
         <MudContainer>
             <MudPaper Elevation="0" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <MudChart ChartType="ChartType.Line" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="90%" Height="100%"></MudChart>
+                <MudChart ChartOptions="@options" ChartType="ChartType.Line" Class="mx-2" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
+
+                </MudChart>
             </MudPaper>
         </MudContainer>
     </div>
@@ -122,6 +125,8 @@
 }
 
 @code {
+    private ChartOptions options = new ChartOptions();
+    //ChartOptions options = new ChartOptions() { ChartPalette = new[] { "#4CAF50", "#FF1744" }, InterpolationOption = InterpolationOption.NaturalSpline };
     private const string ACCOUNT_LOCAL_STORAGE = "accounting";
     bool income_visible, expense_visible, charts_visible;
     bool menu_visible = true;
@@ -131,6 +136,8 @@
     private List<string> dates = new List<string>();
     protected override async Task OnInitializedAsync()
     {
+        options.ChartPalette = new[] { "#4CAF50", "#FF1744" };
+
         accounting = await localStorage.GetItemAsync<Accounting>(ACCOUNT_LOCAL_STORAGE);
         if (accounting == null)
         {
@@ -157,12 +164,14 @@
 
         var groupedExpenses = accounting.Expenses.OrderBy(x => x.Date)
                     .GroupBy(exp => exp.Date)//group it by date
-                    .Select(groupedExpenseByDate => 
-                        new { 
-                            Date = groupedExpenseByDate.Key, 
+                    .Select(groupedExpenseByDate =>
+                        new
+                        {
+                            Date = groupedExpenseByDate.Key,
                             Amount = groupedExpenseByDate
-                                         .Sum(monthExpense => monthExpense.Amount), 
-                            IsIncome = false }).ToList(); // marker for Concat/Union All
+                                         .Sum(monthExpense => monthExpense.Amount),
+                            IsIncome = false
+                        }).ToList(); // marker for Concat/Union All
 
         var result = groupedIncome.Concat(groupedExpenses).OrderBy(x => x.Date)
                   .GroupBy(x => x.Date)
@@ -175,23 +184,15 @@
                                }).ToList();
 
 
-        //var query1 = accounting.Expenses.OrderBy(x => x.Date).
-        //            GroupBy(x => x.Date).
-        //            Select(t => new { ID = t.Key, Value = 0 });
-
-        //var query2 = accounting.Incomes.OrderBy(x => x.Date).
-        //            GroupBy(x => x.Date).
-        //            Select(t => new { ID = t.Key, Value = t.Sum(u => u.Amount) });
-
-        foreach (var income in result)
+        foreach (var income in result.OrderBy(x => x.Date))
         {
             incomes.Add(income.Income);
         }
-        foreach (var expense in result)
+        foreach (var expense in result.OrderBy(x => x.Date))
         {
             expenses.Add(expense.Expense);
         }
-        foreach (var date in result)
+        foreach (var date in result.OrderBy(x => x.Date))
         {
             dates.Add(((DateTime)date.Date).ToString("dd/MM/yyyy"));
         }
@@ -205,16 +206,16 @@
     {
         return dates.OrderBy(i => i).ToArray();
     }
-    public decimal CalculateIncomes()
+    public string CalculateIncomes()
     {
         decimal sum_income = accounting.Incomes.Select(t => t.Amount).Sum();
-        return sum_income;
+        return sum_income.ToString("C2");
     }
 
-    public decimal CalculateExpenses()
+    public string CalculateExpenses()
     {
         decimal sum_income = accounting.Expenses.Select(t => t.Amount).Sum();
-        return sum_income;
+        return sum_income.ToString("C2");
     }
 
     #region MenuFunctions
@@ -260,7 +261,8 @@
     }
     #endregion
 
-    async Task RemoveData(){
+    async Task RemoveData()
+    {
         var parameters = new DialogParameters();
         parameters.Add("ContentText", $"Do you really want to delete ALL saved data?");
         parameters.Add("ButtonText", "Delete");
@@ -275,7 +277,18 @@
         if (!result.Cancelled)
         {
             await manage.RemoveData(accounting);
-            Snackbar.Add("Data rebooted", Severity.Error);
-        }       
+            accounting = new Accounting();
+        }
+    }
+
+    async Task SaveExcel(){
+        try
+        {
+            await workbook_creator.CreateWorkbook();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
     }
 }
