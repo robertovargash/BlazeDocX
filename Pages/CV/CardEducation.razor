@@ -11,13 +11,13 @@
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.School" T="string" For="@(() => education_model.Institute)" Label="@myText.Institution_name" @bind-Value="@education_model.Institute" />
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => education_model.InstituteCountry)" Label="@myText.Institution_location" @bind-Value="@education_model.InstituteCountry" />
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Engineering" T="string" Label="@myText.Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
-                <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_insitute" AdornmentIcon="@Icons.Filled.School" T="string" For="@(() => education_model.Institute)" Label="@myText.Institution_name" @bind-Value="@education_model.Institute" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => education_model.InstituteCountry)" Label="@myText.Institution_location" @bind-Value="@education_model.InstituteCountry" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_degree" AdornmentIcon="@Icons.Filled.Engineering" T="string" Label="@myText.Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
+                <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_inst_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
                 @if (!education_model.IsCurrent)
                 {
-                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="@myText.Select_Graduation_Date" Editable="true" Label="@myText.Graduation_date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
+                    <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_inst_enddate" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="@myText.Select_Graduation_Date" Editable="true" Label="@myText.Graduation_date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
                 }
                 <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">@myText.Current</MudSwitch>
             </MudCardContent>
@@ -63,13 +63,13 @@ else
             <DataAnnotationsValidator />
             <MudCard Elevation="0">
                 <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.School" T="string" For="@(() => education_model.Institute)" Label="@myText.Institution_name" @bind-Value="@education_model.Institute" />
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => education_model.InstituteCountry)" Label="@myText.Institution_location" @bind-Value="@education_model.InstituteCountry" />
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Engineering" T="string" Label="@myText.Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
-                    <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_insitute" AdornmentIcon="@Icons.Filled.School" T="string" For="@(() => education_model.Institute)" Label="@myText.Institution_name" @bind-Value="@education_model.Institute" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => education_model.InstituteCountry)" Label="@myText.Institution_location" @bind-Value="@education_model.InstituteCountry" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_degree" AdornmentIcon="@Icons.Filled.Engineering" T="string" Label="@myText.Degree" For="@(() => education_model.Degree)" @bind-Value="@education_model.Degree" />
+                    <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_inst_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => education_model.StartDate)" @bind-Date="@education_model.StartDate" />
                     @if (!education_model.IsCurrent)
                     {
-                        <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="@myText.Select_Graduation_Date" Editable="true" Label="@myText.Graduation_date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
+                        <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_inst_enddate" DateFormat="dd/MM/yyyy" MinDate="@education_model.StartDate" Disabled="@(education_model.StartDate == null || education_model.IsCurrent)" Placeholder="@myText.Select_Graduation_Date" Editable="true" Label="@myText.Graduation_date" For="@(() => education_model.EndDate)" @bind-Date="@education_model.EndDate" />
                     }
                     <MudSwitch Color="Color.Primary" @bind-Checked="@(education_model.IsCurrent)">@myText.Current</MudSwitch>
                 </MudCardContent>
@@ -109,14 +109,14 @@ else
                 education_model = new Education();
                 editing_education = false;
                 adding_education = false;
-                Snackbar.Add("Education inserted", MudBlazor.Severity.Success);
+                Snackbar.Add(myText.Education_inserted, MudBlazor.Severity.Success);
             }
             if (editing_education)
             {
                 editing_education = false;
                 adding_education = false;
                 education_model = new Education();
-                Snackbar.Add("Education updated", MudBlazor.Severity.Warning);
+                Snackbar.Add(myText.Education_updated, MudBlazor.Severity.Warning);
             }
             await manage.SaveCVData(cv);
         }
@@ -136,7 +136,7 @@ else
     async Task DeleteEducation(Education item)
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"{myText.Delete_message} education?");
+        parameters.Add("ContentText", myText.Delete_education);
         parameters.Add("ButtonText", myText.Btn_delete);
         parameters.Add("Color", Color.Error);
 
@@ -149,7 +149,7 @@ else
         {
             cv.Educations.Remove(item);
             await manage.SaveCVData(cv);
-            Snackbar.Add("Education deleted", MudBlazor.Severity.Error);
+            Snackbar.Add(myText.Education_deleted, MudBlazor.Severity.Error);
         }
     }
 }

@@ -126,10 +126,10 @@
                     <MudForm @bind-IsValid="@cvform_valid" Model="@cv" ValidationDelay="0">
                         <MudCard Elevation="0">
                             <MudCardContent>
-                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.PersonOutline" For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="@myText.FirstName" />
-                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Person" For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="@myText.SureName" />
-                                <MudTextField OnBlur="LocalSave"  Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="@myText.Position" />
-                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AlternateEmail" For="@(() => cv.Email)" @bind-Value="cv.Email" Label="@myText.Email" InputType="InputType.Email" />
+                                <MudTextField OnBlur="LocalSave" HelperText="@myText.Helper_name" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.PersonOutline" For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="@myText.FirstName" />
+                                <MudTextField OnBlur="LocalSave" HelperText="@myText.Helper_surename" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Person" For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="@myText.SureName" />
+                                <MudTextField OnBlur="LocalSave" HelperText="@myText.Helper_position" Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="@myText.Position" />
+                                <MudTextField OnBlur="LocalSave" HelperText="@myText.Helper_mail" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AlternateEmail" For="@(() => cv.Email)" @bind-Value="cv.Email" Label="@myText.Email" InputType="InputType.Email" />
                             </MudCardContent>
                         </MudCard>
                     </MudForm>
@@ -374,13 +374,13 @@
     async Task RemoveData()
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"Do you really want to delete ALL saved data?");
-        parameters.Add("ButtonText", "Delete");
+        parameters.Add("ContentText", myText.Remove_data_message);
+        parameters.Add("ButtonText", myText.Btn_delete);
         parameters.Add("Color", Color.Error);
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-        var dialog = DialogService.Show<DeleteItemDialog>("Delete", parameters, options);
+        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
         //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
         var result = await dialog.Result;
 

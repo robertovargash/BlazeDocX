@@ -11,9 +11,9 @@
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Tag" T="string" HelperText="@myText.Tag_helper" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details"  AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
             </MudCardContent>
             <MudCardActions>
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
@@ -61,9 +61,9 @@ else
             <DataAnnotationsValidator />
             <MudCard Elevation="0">
                 <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Tag" T="string" HelperText="@myText.Tag_helper" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
@@ -113,14 +113,14 @@ else
                 skill_model = new Skill();
                 adding_skill = false;
                 editing_skill = false;
-                Snackbar.Add("Skill inserted", MudBlazor.Severity.Success);
+                Snackbar.Add(myText.Skill_inserted, MudBlazor.Severity.Success);
             }
             if (editing_skill)
             {
                 editing_skill = false;
                 adding_skill = false;
                 skill_model = new Skill();
-                Snackbar.Add("Skill updated", MudBlazor.Severity.Warning);
+                Snackbar.Add(myText.Skill_updated, MudBlazor.Severity.Warning);
             }
             await manage.SaveCVData(cv);
         }
@@ -140,7 +140,7 @@ else
     async Task DeleteSkill(Skill item)
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"{myText.Delete_message} this skill?");
+        parameters.Add("ContentText", myText.Delete_skill);
         parameters.Add("ButtonText", myText.Btn_delete);
         parameters.Add("Color", Color.Error);
 
@@ -153,7 +153,7 @@ else
         {
             cv.Skills.Remove(item);
             await manage.SaveCVData(cv);
-            Snackbar.Add("Skill deleted", MudBlazor.Severity.Error);
+            Snackbar.Add(myText.Skill_deleted, MudBlazor.Severity.Error);
         }
     }
 

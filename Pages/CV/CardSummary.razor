@@ -11,7 +11,7 @@
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
+                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_summary" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
             </MudCardContent>
             <MudCardActions>
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
@@ -53,7 +53,7 @@ else
             <DataAnnotationsValidator />
             <MudCard Elevation="0">
                 <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
+                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_summary" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
@@ -93,13 +93,13 @@ else
                 cv.ResumeSummary.Add(summary_model);
                 summary_model = new ResumeItem();
                 editing_summary = false;
-                Snackbar.Add("Summary inserted", MudBlazor.Severity.Success);
+                Snackbar.Add(myText.Summary_inserted, MudBlazor.Severity.Success);
             }
             if (editing_summary)
             {
                 editing_summary = false;
                 summary_model = new ResumeItem();
-                Snackbar.Add("Summary updated", MudBlazor.Severity.Warning);
+                Snackbar.Add(myText.Summary_updated, MudBlazor.Severity.Warning);
             }
             StateHasChanged();
             await manage.SaveCVData(cv);
@@ -120,7 +120,7 @@ else
     async Task DeleteSummaryItem(ResumeItem item)
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"{myText.Delete_message} resume summary?");
+        parameters.Add("ContentText", myText.Delete_summary);
         parameters.Add("ButtonText", myText.Btn_delete);
         parameters.Add("Color", Color.Error);
 
@@ -134,7 +134,7 @@ else
         {
             cv.ResumeSummary.Remove(item);
             await manage.SaveCVData(cv);
-            Snackbar.Add("Resume summary deleted", MudBlazor.Severity.Error);
+            Snackbar.Add(myText.Summary_deleted, MudBlazor.Severity.Error);
         }
     }
 }
