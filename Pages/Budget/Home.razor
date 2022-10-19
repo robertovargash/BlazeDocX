@@ -1,9 +1,9 @@
-﻿@page "/"
+﻿@page "/workbooksample"
 @inject IJSRuntime jsRuntime
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject ILocalStorageService localStorage
-@inject AccountingManager manage
+@inject StorageManager manage
 @inject WorkBookCreator workbook_creator;
 
 <MudGrid Style="position:fixed; top:64px;">
@@ -276,7 +276,7 @@
 
         if (!result.Cancelled)
         {
-            await manage.RemoveData(accounting);
+            await manage.RemoveAccountingData(accounting);
             accounting = new Accounting();
         }
     }

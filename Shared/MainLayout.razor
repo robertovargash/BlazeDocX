@@ -5,6 +5,7 @@
 @inject NavigationManager navigationManager
 @inject ThemeManager themeManager
 @inject ISyncLocalStorageService localStorage
+@inject I18nText translator
 @*@inject InstagramAuthStateProvider authStateProvider;*@
 @*@attribute [Authorize]*@
 
@@ -15,22 +16,22 @@
 <div id="header" style="position:absolute; top:0px; left:0px; height:64px; right:0px;overflow:hidden;">
     <MudAppBar Elevation="0">
         <img src="images/xceed_logo.svg" width="42" height="42" class="mr-4" />
-        <MudText Class="text-bold d-none d-md-flex" Typo="Typo.h5"><b>Xceed Words with .Net Blazor Sample</b></MudText>
-        <MudText Class="text-bold d-md-none d-xs-flex" Typo="Typo.subtitle1"><b>Xceed Words with .Net Blazor Sample</b></MudText>
+        <MudText Class="text-bold d-none d-md-flex" Typo="Typo.h5"><b>@myText.Title</b></MudText>
+        <MudText Class="text-bold d-md-none d-xs-flex" Typo="Typo.subtitle1"><b>@myText.Title</b></MudText>
         <MudSpacer />
+        <LanguageSelect/>
         <MudSwitch @bind-Checked="@themeManager.IsDark" ThumbIcon="@Icon" ThumbIconColor="@IconColor" />
     </MudAppBar>
 </div>
 @Body
-@*<MudLayout>
-    
-   
-   <MudMainContent>*@
-
-    @*</MudMainContent>
-</MudLayout>*@
 
 @code {
     string Icon => themeManager.IsDark ? Icons.Material.TwoTone.DarkMode : Icons.Material.TwoTone.LightMode;
     Color IconColor => themeManager.IsDark ? Color.Dark : Color.Default;
+    Text myText = new Text();
+
+    protected override async Task OnInitializedAsync()
+    {
+        myText = await translator.GetTextTableAsync<Text>(this);
+    }
 }

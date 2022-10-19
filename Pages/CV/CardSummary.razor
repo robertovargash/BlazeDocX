@@ -1,7 +1,9 @@
 ﻿@inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject StorageManager manage
+@inject I18nText translator
 
-<MudText Class="mt-2 ml-2" Typo="Typo.h6">Resume Summary</MudText>
+<MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Resume_summary</MudText>
 @if (cv.ResumeSummary.Count == 0)
 {
     editing_summary = adding_summary = true;
@@ -9,10 +11,10 @@
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
             <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
             </MudCardContent>
             <MudCardActions>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
             </MudCardActions>
         </MudCard>
     </EditForm>
@@ -21,7 +23,7 @@ else
 {
     @if (!editing_summary)
     {
-        <MudButton OnClick="@(() => editing_summary = adding_summary = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">ADD NEW</MudButton>
+        <MudButton OnClick="@(() => editing_summary = adding_summary = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
         foreach (var summary in cv.ResumeSummary)
         {
             <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
@@ -46,15 +48,15 @@ else
     }
     else
     {
-        <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">Back</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="@(() => Cancel())" Color="Color.Primary">@myText.Btn_back</MudButton>
         <EditForm Model="@summary_model" OnValidSubmit="AddSummaryItem">
             <DataAnnotationsValidator />
             <MudCard Elevation="0">
                 <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="Summary item" @bind-Value="@summary_model.Summary" />
+                    <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Checklist" T="string" For="@(() => summary_model.Summary)" Label="@myText.Card_Resume_summary" @bind-Value="@summary_model.Summary" />
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">ACCEPT</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
                 </MudCardActions>
             </MudCard>
         </EditForm>
@@ -63,6 +65,14 @@ else
 
 
 @code {
+
+        Text myText = new Text();
+
+    protected override async Task OnInitializedAsync()
+    {
+        myText = await translator.GetTextTableAsync<Text>(this);
+    }
+
     bool editing_summary, adding_summary = false;
     private ResumeItem summary_model = new ResumeItem();
     [Parameter] public CV cv { get; set; }
@@ -92,6 +102,7 @@ else
                 Snackbar.Add("Summary updated", MudBlazor.Severity.Warning);
             }
             StateHasChanged();
+            await manage.SaveCVData(cv);
         }
         catch (Exception ex)
         {
@@ -108,20 +119,22 @@ else
 
     async Task DeleteSummaryItem(ResumeItem item)
     {
-        var parameters = new DialogParameters
-            {
-                ["P_resume"] = item,
-                ["Operation"] = "DELETE",
-                ["ReadOnly"] = true
-            };
-        var dialog = DialogService.Show<SummaryDataDialog>("Deleting Summary item", parameters);
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"{myText.Delete_message} resume summary?");
+        parameters.Add("ButtonText", myText.Btn_delete);
+        parameters.Add("Color", Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
         var result = await dialog.Result;
 
         if (!result.Cancelled)
         {
             cv.ResumeSummary.Remove(item);
-            Snackbar.Add("Resume deleted", MudBlazor.Severity.Error);
-
+            await manage.SaveCVData(cv);
+            Snackbar.Add("Resume summary deleted", MudBlazor.Severity.Error);
         }
     }
 }

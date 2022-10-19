@@ -1,17 +1,22 @@
-﻿@page "/cv"
+﻿@page "/wordsample"
 @inject IJSRuntime jsRuntime
+@inject ILocalStorageService localStorage
+@inject StorageManager manage
 @inject CVCreator cvCreator
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inherits LayoutComponentBase
 @inject NavigationManager navigationManager
 @inject ThemeManager themeManager
+@inject I18nText translator
 
 <MudGrid Style="position:fixed; top:64px;">
     <MudItem xs="12">
         <MudToolBar>
             <MudSpacer />
-            <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
+            <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" Disabled="@(!cvform_valid)" OnClick="SaveChanges" />
+            @*<MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />*@
         </MudToolBar>
     </MudItem>
 </MudGrid>
@@ -39,7 +44,7 @@
                                 <MudIcon Size="Size.Large" Icon="@Icons.Material.Filled.AccountCircle" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Contact info</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Card_Contact_info</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -51,7 +56,7 @@
                                 <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.TextSnippet" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Resume</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Card_Resume_summary</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -63,7 +68,7 @@
                                 <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.Work" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Work experience</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Card_Work_experience</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -75,7 +80,7 @@
                                 <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.School" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Education</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Card_Education</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -87,7 +92,7 @@
                                 <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.Lightbulb" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Skills</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Card_Skills</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -99,7 +104,7 @@
                                 <MudIcon Size="Size.Large" Icon="@Icons.Material.Filled.Email" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5">Reference</MudText>
+                                <MudText Typo="Typo.h5">@myText.Card_References</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -116,15 +121,15 @@
         <MudContainer>
             <MudPaper Elevation="0" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <MudText Class="mt-2 ml-2" Typo="Typo.h6">Contact Info</MudText>
+                <MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Contact_info</MudText>
                 <MudPaper Elevation="0" Class="mt-1">
                     <MudForm @bind-IsValid="@cvform_valid" Model="@cv" ValidationDelay="0">
                         <MudCard Elevation="0">
                             <MudCardContent>
-                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.PersonOutline" For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="First Name" />
-                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Person" For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="Last Name" />
-                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="Occupation" />
-                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AlternateEmail" For="@(() => cv.Email)" @bind-Value="cv.Email" Label="Email" InputType="InputType.Email" />
+                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.PersonOutline" For="@(() => cv.FirstName)" @bind-Value="cv.FirstName" Label="@myText.FirstName" />
+                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Person" For="@(() => cv.LastName)" @bind-Value="cv.LastName" Label="@myText.SureName" />
+                                <MudTextField OnBlur="LocalSave"  Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Cases" For="@(() => cv.Occupation)" @bind-Value="cv.Occupation" Label="@myText.Position" />
+                                <MudTextField OnBlur="LocalSave" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AlternateEmail" For="@(() => cv.Email)" @bind-Value="cv.Email" Label="@myText.Email" InputType="InputType.Email" />
                             </MudCardContent>
                         </MudCard>
                     </MudForm>
@@ -136,9 +141,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToRefences" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToRefences" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToResume" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToResume" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -159,9 +164,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToContactInfo" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToContactInfo" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToExperience" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToExperience" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -181,9 +186,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToResume" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToResume" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToEducation" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToEducation" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -203,9 +208,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToExperience" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToExperience" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToSkill" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToSkill" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -225,9 +230,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToEducation" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToEducation" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToRefences" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToRefences" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -247,9 +252,9 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToSkill" />
+                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToSkill" />
                     <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToContactInfo" />
+                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToContactInfo" />
                 </MudToolBar>
             </MudItem>
         </MudGrid>
@@ -263,6 +268,24 @@
     CV cv = new();
     bool contactInfo, resume, experience, education, skill, reference;
     bool visible_list = true;
+    private const string CV_LOCAL_STORAGE = "cv";
+
+    Text myText = new Text();
+
+    protected override async Task OnInitializedAsync()
+    {
+        myText = await translator.GetTextTableAsync<Text>(this);
+        cv = await localStorage.GetItemAsync<CV>(CV_LOCAL_STORAGE);
+        if (cv == null)
+        {
+            cv = new CV();
+            await localStorage.SetItemAsync(CV_LOCAL_STORAGE, cv);
+        }
+    }
+
+    async Task LocalSave(){
+        await manage.SaveCVData(cv);
+    }
 
     async Task GoBack()
     {
@@ -338,8 +361,33 @@
     }
     async Task SaveChanges()
     {
-        Saving = true;
-        await cvCreator.Create(cv);
-        Saving = false;
+        try
+        {
+            await cvCreator.Create(cv);;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    async Task RemoveData()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"Do you really want to delete ALL saved data?");
+        parameters.Add("ButtonText", "Delete");
+        parameters.Add("Color", Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.Show<DeleteItemDialog>("Delete", parameters, options);
+        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await manage.RemoveCVData(cv);
+            cv = new CV();
+        }
     }
 }

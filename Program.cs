@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using Xceed.Words.NET;
 using Xceed.Document.NET;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 Xceed.Document.NET.Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
 Xceed.Workbooks.NET.Licenser.LicenseKey = "WBN13-2SKLF-RUWUK-C41A";
@@ -26,7 +27,9 @@ builder.Services.AddSingleton<CVCreator>();
 //builder.Services.AddSingleton<AccountingManager>();
 builder.Services.AddSingleton<WorkBookCreator>();
 
-builder.Services.AddScoped<AccountingManager>();
+builder.Services.AddScoped<StorageManager>();
+builder.Services.AddI18nText(option => option.PersistanceLevel = Toolbelt.Blazor.I18nText.PersistanceLevel.SessionAndLocal);
+//builder.Services.AddI18nText<Program>();
 
 
 builder.Services.AddBlazoredLocalStorage(config =>

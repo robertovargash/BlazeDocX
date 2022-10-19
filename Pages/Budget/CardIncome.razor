@@ -1,7 +1,7 @@
 ﻿@using System.Globalization;
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-@inject AccountingManager manage
+@inject StorageManager manage
 
 <MudPaper Class="mt-2 mb-2 pa-2 mud-theme-success">
     <MudText Typo="Typo.h6">Incomes</MudText>
@@ -121,7 +121,7 @@ else
                 income_model = new Income() { Date = DateTime.Now };
                 Snackbar.Add("Income updated", MudBlazor.Severity.Warning);
             }
-            await manage.SaveData(accounting);
+            await manage.SaveAccountingData(accounting);
         }
         catch (Exception ex)
         {
@@ -152,7 +152,7 @@ else
         if (!result.Cancelled)
         {
             accounting.Incomes.Remove(item);
-            await manage.SaveData(accounting);
+            await manage.SaveAccountingData(accounting);
             Snackbar.Add("Income deleted", MudBlazor.Severity.Error);
         }
     }

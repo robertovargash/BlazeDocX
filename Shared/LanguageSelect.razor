@@ -1,0 +1,37 @@
+﻿@using System.Globalization;
+@inject I18nText translator
+
+<MudPaper Elevation="0" Width="50" Class="ma-1">
+@*    <MudSelect Class="mx-1" @bind-Value="CurrentLang" T="string" @onchange="ChangeLang">
+        <MudSelectItem Value="@(CurrentLang = "en")">EN</MudSelectItem>
+        <MudSelectItem Value="@(CurrentLang = "es")">ES</MudSelectItem>
+        <MudSelectItem Value="@(CurrentLang = "fr")">FR</MudSelectItem>
+    </MudSelect>*@
+    <select class="ma-1 form-control form-control-sm" @onchange="ChangeLang">
+        <option value="en" selected="@(CurrentLang == "en")">EN</option>
+        <option Value="es" selected="@(CurrentLang == "es")">ES</option>
+        <option Value="fr" selected="@(CurrentLang == "fr")">FR</option>
+    </select>
+</MudPaper>
+
+@code {
+    private string CurrentLang { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lang = await translator.GetCurrentLanguageAsync();
+        if (new[] { "en", "es", "fr" }.Contains(lang.Split('-')[0]))
+        {
+            CurrentLang = lang;
+        }
+        else
+        {
+            CurrentLang = "en";
+        }
+    }
+
+    async Task ChangeLang(ChangeEventArgs lang){
+        CurrentLang = lang.Value as string;
+        await translator.SetCurrentLanguageAsync(CurrentLang);
+    }
+}
