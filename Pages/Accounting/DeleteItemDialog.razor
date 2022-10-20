@@ -1,15 +1,23 @@
-﻿<MudDialog>
+﻿@inject I18nText translator
+
+<MudDialog>
     <DialogContent>
         <MudText>@ContentText</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="Cancel">@myText.Btn_cancel</MudButton>
         <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
     </DialogActions>
 </MudDialog>
 
 
 @code {
+    Text myText = new Text();
+
+    protected override async Task OnInitializedAsync()
+    {
+        myText = await translator.GetTextTableAsync<Text>(this);
+    }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     [Parameter] public string ContentText { get; set; }

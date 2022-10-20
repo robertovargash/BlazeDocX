@@ -3,76 +3,86 @@
 @inject StorageManager manage
 @inject I18nText translator
 
-<MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_References</MudText>
-@if (cv.References.Count == 0)
-{
-    adding_references = editing_references = true;
-    <EditForm OnValidSubmit="AddReference" Model="@reference_model">
-        <DataAnnotationsValidator />
-        <MudCard Elevation="0">
-            <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer" AdornmentIcon="@Icons.Filled.PersonOutline" T="string" For="@(() => reference_model.PersonName)" Label="@myText.Employer" @bind-Value="@reference_model.PersonName" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Employer_position" For="@(() => reference_model.Occupation)" @bind-Value="@reference_model.Occupation" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => reference_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@reference_model.CompanyName" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_MAIL" AdornmentIcon="@Icons.Rounded.AlternateEmail" T="string" Label="@myText.Email" For="@(() => reference_model.Email)" @bind-Value="@reference_model.Email" />
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </EditForm>
-}
-else
-{
-    @if (!editing_references)
-    {
-        <MudButton OnClick="(() => editing_references = adding_references = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
+<div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+    <MudContainer>
+        <MudPaper Elevation="0" Class="ma-1">
+            <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+            <MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_References</MudText>
+            @if (cv.References.Count == 0)
+            {
+                adding_references = editing_references = true;
+                <EditForm OnValidSubmit="AddReference" Model="@reference_model">
+                    <DataAnnotationsValidator />
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer" AdornmentIcon="@Icons.Filled.PersonOutline" T="string" For="@(() => reference_model.PersonName)" Label="@myText.Employer" @bind-Value="@reference_model.PersonName" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Employer_position" For="@(() => reference_model.Occupation)" @bind-Value="@reference_model.Occupation" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => reference_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@reference_model.CompanyName" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_MAIL" AdornmentIcon="@Icons.Rounded.AlternateEmail" T="string" Label="@myText.Email" For="@(() => reference_model.Email)" @bind-Value="@reference_model.Email" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
+            }
+            else
+            {
+                @if (!editing_references)
+                {
+                    <MudButton OnClick="(() => editing_references = adding_references = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
 
-        @foreach (var reference in cv.References)
-        {
-            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-                <MudGrid Class="m-1">
-                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditReference(reference))">
-                        <MudAvatar Color="Color.Primary">@reference.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
-                    </MudItem>
-                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditReference(reference))">
-                        <MudGrid>
-                            <MudItem>
-                                <MudText Typo="Typo.subtitle2"><b>@reference.PersonName</b> <u>@reference.Email</u></MudText>
-                                <MudText Typo="Typo.subtitle2">@reference.CompanyName</MudText>
-                                <MudText Typo="Typo.caption">@reference.Occupation</MudText>
-                            </MudItem>
-                        </MudGrid>
-                    </MudItem>
-                    <MudSpacer />
-                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                        <MudIconButton @onclick="@(() => DeleteReference(reference))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        }
-    }
-    else
-    {
-        <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
-        <EditForm OnValidSubmit="AddReference" Model="@reference_model">
-            <DataAnnotationsValidator />
-            <MudCard Elevation="0">
-                <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer" AdornmentIcon="@Icons.Filled.PersonOutline" T="string" For="@(() => reference_model.PersonName)" Label="@myText.Employer" @bind-Value="@reference_model.PersonName" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Employer_position" For="@(() => reference_model.Occupation)" @bind-Value="@reference_model.Occupation" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => reference_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@reference_model.CompanyName" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_MAIL" AdornmentIcon="@Icons.Rounded.AlternateEmail" T="string" Label="@myText.Email" For="@(() => reference_model.Email)" @bind-Value="@reference_model.Email" />
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </EditForm>
-    }
-}
+                    @foreach (var reference in cv.References)
+                    {
+                        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                            <MudGrid Class="m-1">
+                                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditReference(reference))">
+                                    <MudAvatar Color="Color.Primary">@reference.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
+                                </MudItem>
+                                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditReference(reference))">
+                                    <MudGrid>
+                                        <MudItem>
+                                            <MudText Typo="Typo.subtitle2"><b>@reference.PersonName</b> <u>@reference.Email</u></MudText>
+                                            <MudText Typo="Typo.subtitle2">@reference.CompanyName</MudText>
+                                            <MudText Typo="Typo.caption">@reference.Occupation</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudItem>
+                                <MudSpacer />
+                                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                                    <MudIconButton @onclick="@(() => DeleteReference(reference))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    }
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
+                    <EditForm OnValidSubmit="AddReference" Model="@reference_model">
+                        <DataAnnotationsValidator />
+                        <MudCard Elevation="0">
+                            <MudCardContent>
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer" AdornmentIcon="@Icons.Filled.PersonOutline" T="string" For="@(() => reference_model.PersonName)" Label="@myText.Employer" @bind-Value="@reference_model.PersonName" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Employer_position" For="@(() => reference_model.Occupation)" @bind-Value="@reference_model.Occupation" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => reference_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@reference_model.CompanyName" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_employer_MAIL" AdornmentIcon="@Icons.Rounded.AlternateEmail" T="string" Label="@myText.Email" For="@(() => reference_model.Email)" @bind-Value="@reference_model.Email" />
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </EditForm>
+                }
+            }
+        </MudPaper>
+    </MudContainer>
+</div>
 
 @code {
+
+    [Parameter] public EventCallback GoBack { get; set; }
+    [Parameter] public CV cv { get; set; }
     Text myText = new Text();
 
     protected override async Task OnInitializedAsync()
@@ -81,7 +91,7 @@ else
     }
     bool adding_references, editing_references = false;
     private WorkReference reference_model = new WorkReference();
-    [Parameter] public CV cv { get; set; }
+
 
     async Task Cancel()
     {
@@ -127,21 +137,28 @@ else
 
     async Task DeleteReference(WorkReference item)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", myText.Delete_reference);
-        parameters.Add("ButtonText", myText.Btn_delete);
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        try
         {
-            cv.References.Remove(item);
-            await manage.SaveCVData(cv);
-            Snackbar.Add(myText.Reference_deleted, MudBlazor.Severity.Error);
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", myText.Delete_reference);
+            parameters.Add("ButtonText", myText.Btn_delete);
+            parameters.Add("Color", Color.Error);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                cv.References.Remove(item);
+                await manage.SaveCVData(cv);
+                Snackbar.Add(myText.Reference_deleted, MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
         }
     }
 

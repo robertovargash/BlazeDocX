@@ -9,9 +9,7 @@ namespace BlazeDocX.Services
 {
     public class WorkBookCreator
     {
-        private const int size = 150;
         private readonly IJSRuntime jsRuntime;
-        private const double SPACING_BEFORE = 5d;
         public WorkBookCreator(IJSRuntime _jsRuntime)
         {
             jsRuntime = _jsRuntime;
@@ -29,8 +27,7 @@ namespace BlazeDocX.Services
                 // Save the created workbook.
                 using MemoryStream memStream = new();
                 workbook.SaveAs(memStream);
-                await jsRuntime.InvokeVoidAsync("blazeDocX.downloadStream", memStream.GetBuffer(), $"Test.xlsx");
-                //Console.WriteLine("\tCreated: CreateWorkbook.xlsx\n");
+                await jsRuntime.InvokeVoidAsync("blazeDocX.downloadStream", memStream.GetBuffer(), $"Accounting.xlsx");
             }
         }
 
@@ -78,8 +75,12 @@ namespace BlazeDocX.Services
 
             // Add a title.
             worksheet.Cells["A1"].Value = "Expenses";
-            worksheet.Cells["A1"].Style.Font = new Font() { Bold = true, Size = 15.5d };
-            worksheet.Cells["A1"].Style.Font.Color = System.Drawing.Color.Red;
+            worksheet.Cells["A1"].Style.Font = new Font
+            {
+                Bold = true,
+                Size = 15.5d,
+                Color = System.Drawing.Color.Red
+            };
 
             worksheet.MergedCells.Add("A1", "D1");
 

@@ -9,29 +9,19 @@
 @inject NavigationManager navigationManager
 @inject ThemeManager themeManager
 @inject I18nText translator
+@inject NavigationManager NavManager
 
+<PageTitle>@Title</PageTitle>
 <MudGrid Style="position:fixed; top:64px;">
-    <MudItem xs="12">
+    <MudContainer Class="mt-3">
         <MudToolBar>
+            <MudAvatar Size="Size.Large" Class="cursor-pointer" Image="images/workbooks.png" @onclick="GoToWorkBooks" />
             <MudSpacer />
             <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
-            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" Disabled="@(!cvform_valid)" OnClick="SaveChanges" />
-            @*<MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />*@
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Color="Color.Primary" Disabled="@(!cvform_valid)" OnClick="SaveChanges" />
         </MudToolBar>
-    </MudItem>
+    </MudContainer>
 </MudGrid>
-@*<div id="header" class="d-inline" style="position:absolute; top:0px; left:0px; height:64px; right:0px;overflow:hidden;">
-    <div class="d-inline">
-        <img src="images/xceed_logo.svg" width="42" height="42" class="mr-4 d-inline" />
-    </div>
-    <div class="d-inline d-sx-none d-md-flex">
-        <MudText Typo="Typo.h5"><b>Xceed Words with .Net Blazor</b></MudText>
-    </div>
-    <div class="d-inline">
-        <MudFab StartIcon="@Icons.Filled.Save" Color="Color.Primary" Disabled="@(!cvform_valid)" Label="Save CV" OnClick="SaveChanges" />
-    </div>
-</div>*@
-
 @if (!contactInfo && !resume && !experience && !education && !skill && !reference)
 {
     <div id="content" style="position:absolute; top:128px; bottom:0px; left:0px; right:0px; overflow:auto;">
@@ -137,132 +127,36 @@
             </MudPaper>
         </MudContainer>
     </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToRefences" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToResume" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+
+    <CVFooter GoBack="GoToRefences" GoForward="GoToResume" />
 }
 @if (resume && !visible_list)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardSummary cv="cv" />
-            </MudPaper>
-        </MudContainer>
-
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToContactInfo" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToExperience" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardSummary cv="cv" GoBack="GoBack" />
+    <CVFooter GoBack="GoToContactInfo" GoForward="GoToExperience" />
 }
 @if (experience && !visible_list)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardExperience cv="cv" />
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToResume" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToEducation" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardExperience cv="cv" GoBack="GoBack" />
+    <CVFooter GoBack="GoToResume" GoForward="GoToEducation" />
 }
 @if (education && !visible_list)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer >
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardEducation cv="cv" />
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToExperience" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToSkill" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardEducation cv="cv" GoBack="GoBack" />
+    <CVFooter GoBack="GoToExperience" GoForward="GoToSkill" />
 }
 @if (skill && !visible_list)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardSkill cv="cv" />
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToEducation" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToRefences" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardSkill cv="cv" GoBack="GoBack" />
+    <CVFooter GoBack="GoToEducation" GoForward="GoToRefences" />
 }
 @if (reference && !visible_list)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardReference cv="cv" />
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="@myText.Btn_Prev" OnClick="GoToSkill" />
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="@myText.Btn_Next" OnClick="GoToContactInfo" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardReference cv="cv" GoBack="GoBack" />
+    <CVFooter GoBack="GoToSkill" GoForward="GoToContactInfo" />
 }
 
 @code {
-    //Profile _profile = new();
     bool cvform_valid = false;
     public bool Saving { get; set; }
     CV cv = new();
@@ -272,19 +166,39 @@
 
     Text myText = new Text();
 
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+    private string Title = "Words";
+
     protected override async Task OnInitializedAsync()
     {
-        myText = await translator.GetTextTableAsync<Text>(this);
-        cv = await localStorage.GetItemAsync<CV>(CV_LOCAL_STORAGE);
-        if (cv == null)
+        try
         {
-            cv = new CV();
-            await localStorage.SetItemAsync(CV_LOCAL_STORAGE, cv);
+            Layout.Title = Title;
+            cv = await localStorage.GetItemAsync<CV>(CV_LOCAL_STORAGE);
+            myText = await translator.GetTextTableAsync<Text>(this);
+            if (cv == null)
+            {
+                cv = new CV();
+                await localStorage.SetItemAsync(CV_LOCAL_STORAGE, cv);
+            }
+        }
+        catch (Exception ex)
+        {
+             Snackbar.Add(ex.Message, Severity.Error);
         }
     }
 
-    async Task LocalSave(){
-        await manage.SaveCVData(cv);
+    async Task LocalSave()
+    {
+        try
+        {
+            await manage.SaveCVData(cv);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
     }
 
     async Task GoBack()
@@ -363,7 +277,7 @@
     {
         try
         {
-            await cvCreator.Create(cv);;
+            await cvCreator.Create(cv); ;
         }
         catch (Exception ex)
         {
@@ -373,21 +287,33 @@
 
     async Task RemoveData()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", myText.Remove_data_message);
-        parameters.Add("ButtonText", myText.Btn_delete);
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
-        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        try
         {
-            await manage.RemoveCVData(cv);
-            cv = new CV();
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", myText.Remove_data_message);
+            parameters.Add("ButtonText", myText.Btn_delete);
+            parameters.Add("Color", Color.Error);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+            //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                await manage.RemoveCVData(cv);
+                cv = new CV();
+            }
         }
+        catch (Exception ex)
+        {
+             Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void GoToWorkBooks()
+    {
+        NavManager.NavigateTo("/workbooksample");
     }
 }

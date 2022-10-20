@@ -8,11 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\Account.cs" />
+    <Compile Remove="i18ntext\**" />
+    <Content Remove="i18ntext\**" />
+    <EmbeddedResource Remove="i18ntext\**" />
+    <None Remove="i18ntext\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Budget\CardAccount.razor" />
+    <Content Remove="Pages\Accounting\CardAccount.razor" />
     <Content Remove="Pages\CV\EducationDataDialog.razor" />
     <Content Remove="Pages\CV\Home.razor" />
     <Content Remove="Pages\CV\SkillDataDialog.razor" />
@@ -41,7 +44,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="i18ntext\Text.en.json" />
+    <AdditionalFiles Remove="i18ntext\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="i18ntext\Text.fr.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +56,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="i18ntext\Text.fr.json" />
+    <None Remove="i18ntext\Text.en.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="i18ntext\Text.fr.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="i18ntext\Text.es.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="i18ntext\Text.en.json" />
   </ItemGroup>
 
 </Project>

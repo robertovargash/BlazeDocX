@@ -5,15 +5,20 @@
 @inject ILocalStorageService localStorage
 @inject StorageManager manage
 @inject WorkBookCreator workbook_creator;
+@inject NavigationManager NavManager
+@inject I18nText translator
 
+
+<PageTitle>@Title</PageTitle>
 <MudGrid Style="position:fixed; top:64px;">
-    <MudItem xs="12">
+    <MudContainer Class="mt-3">
         <MudToolBar>
+            <MudAvatar Size="Size.Large" Class="cursor-pointer" Image="images/words.jpg" @onclick="GoToWords" />
             <MudSpacer />
             <MudFab StartIcon="@Icons.Filled.Autorenew" Class="mr-2" Color="Color.Secondary" OnClick="RemoveData" />
-            <MudFab StartIcon="@Icons.Filled.CloudDownload" Class="mr-2" Color="Color.Primary" OnClick="SaveExcel" />
+            <MudFab StartIcon="@Icons.Filled.CloudDownload" Color="Color.Primary" OnClick="SaveExcel" />
         </MudToolBar>
-    </MudItem>
+    </MudContainer>
 </MudGrid>
 @if (!income_visible && !expense_visible && !charts_visible)
 {
@@ -23,10 +28,9 @@
                 <MudItem xs="12" sm="12" md="6">
                     <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowIncome())">
                         <MudStack>
-                            <MudText Typo="Typo.h5" Color="Color.Success">Incomes</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">@myText.Incomes</MudText>
                             <MudPaper Elevation="0">
                                 <MudStack Row="true">
-                                    @*<MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Filled.AttachMoney"></MudIcon>*@
                                     <MudText Typo="Typo.h5" Color="Color.Success">@CalculateIncomes()</MudText>
                                 </MudStack>
                             </MudPaper>
@@ -36,10 +40,9 @@
                 <MudItem xs="12" sm="12" md="6">
                     <MudPaper Class="pa-6 mx-1 mt-1 cursor-pointer" Outlined="true" onclick="@(() => ShowExpense())">
                         <MudStack>
-                            <MudText Typo="Typo.h5" Color="Color.Secondary">Expenses</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Secondary">@myText.Expenses</MudText>
                             <MudPaper Elevation="0">
                                 <MudStack Row="true">
-                                    @*<MudIcon Size="Size.Large" Color="Color.Secondary" Icon="@Icons.Filled.AttachMoney"></MudIcon>*@
                                     <MudText Typo="Typo.h5" Color="Color.Secondary">@CalculateExpenses()</MudText>
                                 </MudStack>
                             </MudPaper>
@@ -53,7 +56,7 @@
                                 <MudIcon Size="Size.Large" Class="d-inline" Icon="@Icons.Material.Filled.BarChart" />
                             </MudItem>
                             <MudItem Class="align-self-center">
-                                <MudText Typo="Typo.h5" Class="d-inline">Charts</MudText>
+                                <MudText Typo="Typo.h5" Class="d-inline">@myText.Charts</MudText>
                             </MudItem>
                         </MudGrid>
                     </MudPaper>
@@ -66,47 +69,13 @@
 }
 @if (income_visible && !menu_visible)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                    <CardIncome accounting="accounting" />
-                </MudPaper>
-            </MudContainer>
-        </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    @*<MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Primary" Label="Prev" OnClick="GoToAccounts" />*@
-                    <MudSpacer />
-                    <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Secondary" Label="Expenses" OnClick="GoToExpense" />
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardIncome accounting="accounting" GoBack="GoBack" />
+    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" Visibleback="invisible" Visibleforward="" Textback="" Textforward="@myText.Expenses" />
 }
 @if (expense_visible && !menu_visible)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <CardExpense accounting="accounting" />
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
-        <MudGrid>
-            <MudItem xs="12">
-                <MudToolBar>
-                    <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Success" Label="Incomes" OnClick="GoToIncome" />
-                    <MudSpacer />
-                    @*<MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Primary" Label="Next" OnClick="GoToCharts" />*@
-                </MudToolBar>
-            </MudItem>
-        </MudGrid>
-    </div>
+    <CardExpense accounting="accounting" GoBack="GoBack" />
+    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" Textback="@myText.Incomes" Textforward="" Visibleback="" Visibleforward="invisible" />
 }
 @if (charts_visible && !menu_visible)
 {
@@ -114,7 +83,7 @@
         <MudContainer>
             <MudPaper Elevation="0" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <MudChart ChartOptions="@options" ChartType="ChartType.Line" Class="mx-2" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
+                <MudChart ChartOptions="@options" ChartType="ChartType.Line" Class="ma-4" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
 
                 </MudChart>
             </MudPaper>
@@ -134,15 +103,29 @@
     private List<decimal> incomes = new List<decimal>();
     private List<decimal> expenses = new List<decimal>();
     private List<string> dates = new List<string>();
+    private string Title = "Workbooks";
+
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+    Text myText = new Text();
+
     protected override async Task OnInitializedAsync()
     {
-        options.ChartPalette = new[] { "#4CAF50", "#FF1744" };
-
-        accounting = await localStorage.GetItemAsync<Accounting>(ACCOUNT_LOCAL_STORAGE);
-        if (accounting == null)
+        try
         {
-            accounting = new Accounting();
-            await localStorage.SetItemAsync(ACCOUNT_LOCAL_STORAGE, accounting);
+            Layout.Title = Title;
+            options.ChartPalette = new[] { "#4CAF50", "#FF1744" };
+            accounting = await localStorage.GetItemAsync<Accounting>(ACCOUNT_LOCAL_STORAGE);
+            myText = await translator.GetTextTableAsync<Text>(this);
+            if (accounting == null)
+            {
+                accounting = new Accounting();
+                await localStorage.SetItemAsync(ACCOUNT_LOCAL_STORAGE, accounting);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
         }
     }
 
@@ -197,10 +180,10 @@
             dates.Add(((DateTime)date.Date).ToString("dd/MM/yyyy"));
         }
         return new List<ChartSeries>()
-        {
-            new ChartSeries() { Name = "Incomes", Data = Array.ConvertAll(incomes.ToArray(),x => (double)x) },
-            new ChartSeries() { Name = "Expenses", Data = Array.ConvertAll(expenses.ToArray(),x => (double)x) }
-        };
+            {
+                new ChartSeries() { Name = myText.Incomes, Data = Array.ConvertAll(incomes.ToArray(),x => (double)x) },
+                new ChartSeries() { Name = myText.Expenses, Data = Array.ConvertAll(expenses.ToArray(),x => (double)x) }
+            };
     }
     public string[] XAxisLabels()
     {
@@ -263,25 +246,33 @@
 
     async Task RemoveData()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", $"Do you really want to delete ALL saved data?");
-        parameters.Add("ButtonText", "Delete");
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var dialog = DialogService.Show<DeleteItemDialog>("Delete", parameters, options);
-        //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        try
         {
-            await manage.RemoveAccountingData(accounting);
-            accounting = new Accounting();
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", myText.Remove_data_message);
+            parameters.Add("ButtonText", myText.Btn_delete);
+            parameters.Add("Color", Color.Error);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+            //var dialog = DialogService.Show<EducationDataDialog>("Deleting account", parameters);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                await manage.RemoveAccountingData(accounting);
+                accounting = new Accounting();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
         }
     }
 
-    async Task SaveExcel(){
+    async Task SaveExcel()
+    {
         try
         {
             await workbook_creator.CreateWorkbook(accounting);
@@ -290,5 +281,10 @@
         {
             Snackbar.Add(ex.Message, Severity.Error);
         }
+    }
+
+    private void GoToWords()
+    {
+        NavManager.NavigateTo("/wordsample");
     }
 }

@@ -1,0 +1,25 @@
+﻿@inject I18nText translator
+
+<div id="footer" style="position:absolute; bottom:0px; height:64px; left:0px; right:0px; overflow:hidden;">
+    <MudContainer>
+        <MudToolBar>
+            <MudFab StartIcon="@Icons.Filled.NavigateBefore" Color="Color.Success" Class="@Visibleback" Label="@Textback" OnClick="GoBack" />
+            <MudSpacer />
+            <MudFab EndIcon="@Icons.Filled.NavigateNext" Color="Color.Secondary" Class="@Visibleforward" Label="@Textforward" OnClick="GoForward" />
+        </MudToolBar>
+    </MudContainer>
+</div>
+
+@code {
+    [Parameter] public EventCallback GoBack { get; set; }
+    [Parameter] public EventCallback GoForward { get; set; }
+    [Parameter] public string Visibleback { get; set; }
+    [Parameter] public string Visibleforward { get; set; }
+    [Parameter] public string Textback { get; set; }
+    [Parameter] public string Textforward { get; set; }
+    Text myText = new Text();
+    protected override async Task OnInitializedAsync()
+    {
+        myText = await translator.GetTextTableAsync<Text>(this);
+    }
+}

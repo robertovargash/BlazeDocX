@@ -3,88 +3,96 @@
 @inject StorageManager manage
 @inject I18nText translator
 
-<MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Work_experience</MudText>
-@if (cv.WorkExperiences.Count == 0)
-{
-    adding_experience = editing_experience = true;
-    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
-        <DataAnnotationsValidator />
-        <MudCard Elevation="0">
-            <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@experience_model.CompanyName" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="@myText.Company_location" @bind-Value="@experience_model.CompanyCountry" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Position" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
-                <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
-                @if (!experience_model.IsCurrent)
+<div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+    <MudContainer>
+        <MudPaper Elevation="0" Class="ma-1">
+            <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+            <MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Work_experience</MudText>
+            @if (cv.WorkExperiences.Count == 0)
+            {
+                adding_experience = editing_experience = true;
+                <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
+                    <DataAnnotationsValidator />
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@experience_model.CompanyName" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="@myText.Company_location" @bind-Value="@experience_model.CompanyCountry" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Position" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                            <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
+                            @if (!experience_model.IsCurrent)
+                            {
+                                <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_enddate" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="@myText.Select_End_date" Editable="true" Label="@myText.End_date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
+                            }
+                            <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">@myText.Current</MudSwitch>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
+            }
+            else
+            {
+                @if (!editing_experience)
                 {
-                    <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_enddate" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="@myText.Select_End_date" Editable="true" Label="@myText.End_date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
-                }
-                <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">@myText.Current</MudSwitch>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </EditForm>
-}
-else
-{
-    @if (!editing_experience)
-    {
-        <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
-        foreach (var experience in cv.WorkExperiences)
-        {
-            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-                <MudGrid Class="m-1">
-                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditWorkExperience(experience))">
-                        <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
-                    </MudItem>
-                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditWorkExperience(experience))">
-                        <MudGrid>
-                            <MudItem>
-                                <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
-                                <MudText Typo="Typo.subtitle2">@experience.CompanyCountry</MudText>
-                                <MudText Typo="Typo.caption">@experience.Occupation</MudText>
-                            </MudItem>
-                        </MudGrid>
-                    </MudItem>
-                    <MudSpacer />
-                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                        <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        }
-    }
-    else
-    {
-        <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
-        <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
-            <DataAnnotationsValidator />
-            <MudCard Elevation="0">
-                <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@experience_model.CompanyName" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="@myText.Company_location" @bind-Value="@experience_model.CompanyCountry" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Position" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
-                    <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
-                    @if (!experience_model.IsCurrent)
+                    <MudButton OnClick="(() => editing_experience = adding_experience = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
+                    foreach (var experience in cv.WorkExperiences)
                     {
-                        <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_enddate" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="@myText.Select_End_date" Editable="true" Label="@myText.End_date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
+                        <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                            <MudGrid Class="m-1">
+                                <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditWorkExperience(experience))">
+                                    <MudAvatar Color="Color.Primary">@experience.CompanyName.ToString()[0].ToString().ToUpper()</MudAvatar>
+                                </MudItem>
+                                <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditWorkExperience(experience))">
+                                    <MudGrid>
+                                        <MudItem>
+                                            <MudText Typo="Typo.subtitle2"><b>@experience.CompanyName</b></MudText>
+                                            <MudText Typo="Typo.subtitle2">@experience.CompanyCountry</MudText>
+                                            <MudText Typo="Typo.caption">@experience.Occupation</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudItem>
+                                <MudSpacer />
+                                <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                                    <MudIconButton @onclick="@(() => DeleteWorkExperience(experience))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
                     }
-                    <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">@myText.Current</MudSwitch>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </EditForm>
-    }
-}
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
+                    <EditForm OnValidSubmit="AddWorkExperience" Model="@experience_model">
+                        <DataAnnotationsValidator />
+                        <MudCard Elevation="0">
+                            <MudCardContent>
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@experience_model.CompanyName" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="@myText.Company_location" @bind-Value="@experience_model.CompanyCountry" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Position" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                                <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
+                                @if (!experience_model.IsCurrent)
+                                {
+                                    <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_enddate" DateFormat="dd/MM/yyyy" MinDate="@experience_model.StartDate" Disabled="@(experience_model.StartDate == null || experience_model.IsCurrent)" Placeholder="@myText.Select_End_date" Editable="true" Label="@myText.End_date" For="@(() => experience_model.EndDate)" @bind-Date="@experience_model.EndDate" />
+                                }
+                                <MudSwitch Color="Color.Primary" @bind-Checked="@(experience_model.IsCurrent)">@myText.Current</MudSwitch>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </EditForm>
+                }
+            }
+        </MudPaper>
+    </MudContainer>
+</div>
 
 
 @code {
 
-     Text myText = new Text();
+    [Parameter] public EventCallback GoBack { get; set; }
+    Text myText = new Text();
 
     protected override async Task OnInitializedAsync()
     {
@@ -138,21 +146,28 @@ else
 
     async Task DeleteWorkExperience(WorkExperience item)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", myText.Delete_experience);
-        parameters.Add("ButtonText", myText.Btn_delete);
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        try
         {
-            cv.WorkExperiences.Remove(item);
-            await manage.SaveCVData(cv);
-            Snackbar.Add(myText.Experience_deleted, MudBlazor.Severity.Error);
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", myText.Delete_experience);
+            parameters.Add("ButtonText", myText.Btn_delete);
+            parameters.Add("Color", Color.Error);
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                cv.WorkExperiences.Remove(item);
+                await manage.SaveCVData(cv);
+                Snackbar.Add(myText.Experience_deleted, MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
         }
     }
 }

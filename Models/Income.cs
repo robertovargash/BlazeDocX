@@ -7,10 +7,11 @@ namespace BlazeDocX.Models
     {
         Salary, Sale, Gift, Investment, Repayment, Other
     }
+
     public class Income
     {
         [Required(ErrorMessage = "Required field")]
-        public IncomeCategory Category { get; set; }
+        public string Category { get; set; } = "";
         [Required(ErrorMessage = "Required field")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }

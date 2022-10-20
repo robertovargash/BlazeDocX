@@ -12,7 +12,7 @@ using Xceed.Document.NET;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 using System.Globalization;
 
-Xceed.Document.NET.Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
+Xceed.Words.NET.Licenser.LicenseKey = "WDN23-B1ZHC-PKYEY-L4HA";
 Xceed.Workbooks.NET.Licenser.LicenseKey = "WBN13-2SKLF-RUWUK-C41A";
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

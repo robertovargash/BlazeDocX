@@ -3,77 +3,87 @@
 @inject StorageManager manage
 @inject I18nText translator
 
-<MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Skills</MudText>
-@if (cv.Skills.Count == 0)
-{
-    adding_skill = editing_skill = true;
-    <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
-        <DataAnnotationsValidator />
-        <MudCard Elevation="0">
-            <MudCardContent>
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
-                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details"  AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </EditForm>
-}
-else
-{
-    @if (!editing_skill)
-    {
-        <MudButton OnClick="(() => editing_skill = adding_skill = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
-        @foreach (var keyword in cv.Skills.GroupBy(w => w.Tag).Select(g => new { keyword = g.Key, Tag = g.Select(c => c.Tag) }))
-        {
-            <MudDivider class="invisible" />
-            <MudChip Label="true" Class="cursor-pointer" @onclick="@(() => AddingSkill(keyword.keyword.ToString()))" Color="Color.Primary">@keyword.keyword.ToString()</MudChip>
-            foreach (var skill in cv.Skills.Where(s => s.Tag == keyword.keyword.ToString()).ToList())
+<div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+    <MudContainer>
+        <MudPaper Elevation="0" Class="ma-1">
+            <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+            <MudText Class="mt-2 ml-2" Typo="Typo.h6">@myText.Card_Skills</MudText>
+            @if (cv.Skills.Count == 0)
             {
-                <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
-                    <MudGrid Class="m-1">
-                        <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditSkill(skill))">
-                            <MudAvatar Color="Color.Primary">@skill.Name.ToString()[0].ToString().ToUpper()</MudAvatar>
-                        </MudItem>
-                        <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditSkill(skill))">
-                            <MudGrid>
-                                <MudItem>
-                                    <MudText Typo="Typo.subtitle2"><b>@skill.Name</b></MudText>
-                                    <MudText Typo="Typo.subtitle2">@skill.Description</MudText>
-                                </MudItem>
-                            </MudGrid>
-                        </MudItem>
-                        <MudSpacer />
-                        <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
-                            <MudIconButton @onclick="@(() => DeleteSkill(skill))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
-                        </MudItem>
-                    </MudGrid>
-                </MudPaper>
+                adding_skill = editing_skill = true;
+                <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
+                    <DataAnnotationsValidator />
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
+                            <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
             }
-        }
-    }
-    else
-    {
-        <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
-        <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
-            <DataAnnotationsValidator />
-            <MudCard Elevation="0">
-                <MudCardContent>
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
-                    <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </EditForm>
-    }
-}
+            else
+            {
+                @if (!editing_skill)
+                {
+                    <MudButton OnClick="(() => editing_skill = adding_skill = true)" Class="mt-2" Variant="Variant.Text" Color="Color.Primary">@myText.Btn_New</MudButton>
+                    @foreach (var keyword in cv.Skills.GroupBy(w => w.Tag).Select(g => new { keyword = g.Key, Tag = g.Select(c => c.Tag) }))
+                    {
+                        <MudDivider class="invisible" />
+                        <MudChip Label="true" Class="cursor-pointer" @onclick="@(() => AddingSkill(keyword.keyword.ToString()))" Color="Color.Primary">@keyword.keyword.ToString()</MudChip>
+                        foreach (var skill in cv.Skills.Where(s => s.Tag == keyword.keyword.ToString()).ToList())
+                        {
+                            <MudPaper Outlined="true" Class="mt-1 d-flex align-center pa-2">
+                                <MudGrid Class="m-1">
+                                    <MudItem Class="d-none d-sm-flex align-self-center cursor-pointer" @onclick="@(() => EditSkill(skill))">
+                                        <MudAvatar Color="Color.Primary">@skill.Name.ToString()[0].ToString().ToUpper()</MudAvatar>
+                                    </MudItem>
+                                    <MudItem Class="align-self-center cursor-pointer" Style="width: 70%;" @onclick="@(() => EditSkill(skill))">
+                                        <MudGrid>
+                                            <MudItem>
+                                                <MudText Typo="Typo.subtitle2"><b>@skill.Name</b></MudText>
+                                                <MudText Typo="Typo.subtitle2">@skill.Description</MudText>
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudItem>
+                                    <MudSpacer />
+                                    <MudItem Class="align-self-center pa-1" Style="width: 50px; height: 50px;">
+                                        <MudIconButton @onclick="@(() => DeleteSkill(skill))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Secondary" />
+                                    </MudItem>
+                                </MudGrid>
+                            </MudPaper>
+                        }
+                    }
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text" OnClick="Cancel" Color="Color.Primary">@myText.Btn_back</MudButton>
+                    <EditForm OnValidSubmit="AddSkill" Model="@skill_model">
+                        <DataAnnotationsValidator />
+                        <MudCard Elevation="0">
+                            <MudCardContent>
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_tag" AdornmentIcon="@Icons.Filled.Tag" T="string" For="@(() => skill_model.Tag)" Label="@myText.Tag" @bind-Value="@skill_model.Tag" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill" AdornmentIcon="@Icons.Filled.AutoFixHigh" T="string" Label="@myText.Skill" For="@(() => skill_model.Name)" @bind-Value="@skill_model.Name" />
+                                <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_skill_details" AdornmentIcon="@Icons.Filled.Description" T="string" Lines="3" For="@(() => skill_model.Description)" Label="@myText.Description" @bind-Value="@skill_model.Description" />
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" DisableElevation="true" Class="ml-auto">@myText.Btn_Accept</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </EditForm>
+                }
+            }
+        </MudPaper>
+    </MudContainer>
+</div>
 
 @code {
+
+    [Parameter] public CV cv { get; set; }
+    [Parameter] public EventCallback GoBack { get; set; }
 
     Text myText = new Text();
 
@@ -85,7 +95,7 @@ else
     bool adding_skill, editing_skill = false;
     private Skill skill_model = new Skill();
     string last_tag;
-    [Parameter] public CV cv { get; set; }
+
 
     async Task Cancel()
     {
@@ -139,23 +149,29 @@ else
 
     async Task DeleteSkill(Skill item)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", myText.Delete_skill);
-        parameters.Add("ButtonText", myText.Btn_delete);
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        try
         {
-            cv.Skills.Remove(item);
-            await manage.SaveCVData(cv);
-            Snackbar.Add(myText.Skill_deleted, MudBlazor.Severity.Error);
-        }
-    }
+            var parameters = new DialogParameters();
+            parameters.Add("ContentText", myText.Delete_skill);
+            parameters.Add("ButtonText", myText.Btn_delete);
+            parameters.Add("Color", Color.Error);
 
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var dialog = DialogService.Show<DeleteItemDialog>(myText.Header_Delete, parameters, options);
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                cv.Skills.Remove(item);
+                await manage.SaveCVData(cv);
+                Snackbar.Add(myText.Skill_deleted, MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }        
+    }
 }
 
