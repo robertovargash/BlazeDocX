@@ -11,7 +11,7 @@ namespace BlazeDocX.Models
     public class Income
     {
         [Required(ErrorMessage = "Required field")]
-        public string Category { get; set; } = "";
+        public IncomeCategory Category { get; set; }
         [Required(ErrorMessage = "Required field")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }

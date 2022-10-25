@@ -118,5 +118,7 @@
   "Expense_Electricity": "Électricité",
   "Expense_Communications": "Communication",
   "Expense_delete_question": "Vous souhaitez supprimer cette dépense ?",
-  "Income_Delete_question": "Voulez-vous supprimer cette entrée ?"
+  "Income_Delete_question": "Voulez-vous supprimer cette entrée ?",
+  "LightMode": "Mode lumière",
+  "DarkMode": "Mode sombre"
 }

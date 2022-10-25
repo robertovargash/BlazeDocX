@@ -5,13 +5,28 @@ namespace BlazeDocX.Models
 {
     public enum ExpenseCategory
     {
-        Entertaiment, Education, Purchase, Personal, Health, Investment, Kids, Invoices, Taxes, Services, Food, Travel, Home, Electricity, Communication
+        Entertaiment, 
+        Education, 
+        Purchase, 
+        Personal, 
+        Health, 
+        Investment, 
+        Kids, 
+        Invoices, 
+        Taxes, 
+        Services, 
+        Food, 
+        Travel, 
+        Home, 
+        Electricity, 
+        Communication,
+        Other
     }
 
     public class Expense
     {
         [Required(ErrorMessage = "Required field")]
-        public string Category { get; set; } = "";
+        public ExpenseCategory Category { get; set; }
         [Required(ErrorMessage = "Required field")]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }

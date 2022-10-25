@@ -19,11 +19,30 @@
                     <MudCard Elevation="0">
                         <MudCardContent>
                             <MudSelect @bind-Value="income_model.Category" Label="@myText.Select_category" OpenIcon="@Icons.Filled.CurrencyExchange" AdornmentColor="Color.Primary">
-                                <MudSelectItem Value="@myText.Income_Salary" />
-                                <MudSelectItem Value="@myText.Income_Investment" />
-                                <MudSelectItem Value="@myText.Income_Repayment" />
-                                <MudSelectItem Value="@myText.Income_Sale" />
-                                <MudSelectItem Value="@myText.Income_Gift" />
+                                @foreach (IncomeCategory item in Enum.GetValues(typeof(IncomeCategory)))
+                                {
+                                    switch (item)
+                                    {
+                                        case IncomeCategory.Salary:
+                                            <MudSelectItem Value="IncomeCategory.Salary">@myText.Income_Salary</MudSelectItem>
+                                            break;
+                                        case IncomeCategory.Sale:
+                                            <MudSelectItem Value="IncomeCategory.Sale">@myText.Income_Sale</MudSelectItem>
+                                            break;
+                                        case IncomeCategory.Gift:
+                                            <MudSelectItem Value="IncomeCategory.Gift">@myText.Income_Gift</MudSelectItem>
+                                            break;
+                                        case IncomeCategory.Investment:
+                                            <MudSelectItem Value="IncomeCategory.Investment">@myText.Income_Investment</MudSelectItem>
+                                            break;
+                                        case IncomeCategory.Repayment:
+                                            <MudSelectItem Value="IncomeCategory.Repayment">@myText.Income_Repayment</MudSelectItem>
+                                            break;
+                                        default:
+                                            <MudSelectItem Value="IncomeCategory.Other">@myText.Other</MudSelectItem>
+                                            break;
+                                    }
+                                }
                             </MudSelect>
                             <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Primary" T="decimal" For="@(() => income_model.Amount)" Label="@myText.Ammount" @bind-Value="@income_model.Amount" />
                             <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Date" Editable="true" Label="@myText.Date" For="@(() => income_model.Date)" @bind-Date="@income_model.Date" AdornmentColor="Color.Primary" />
@@ -52,9 +71,39 @@
                                         </MudAvatar>
                                     </MudItem>
                                     <MudItem Class="align-self-center cursor-pointer" Style="width: 60%;">
-                                        <MudText Typo="Typo.subtitle2">
-                                            <b>@income.Category</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
-                                        </MudText>
+                                        @switch (income.Category)
+                                        {
+                                            case IncomeCategory.Salary:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Income_Salary</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                            case IncomeCategory.Gift:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Income_Gift</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                            case IncomeCategory.Repayment:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Income_Repayment</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                            case IncomeCategory.Investment:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Income_Investment</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                            case IncomeCategory.Sale:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Income_Sale</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                            default:
+                                                <MudText Typo="Typo.subtitle2">
+                                                    <b>@myText.Other</b> @(income.Date != null ? ((DateTime)income.Date).ToString("d") : "No Date")
+                                                </MudText>
+                                                break;
+                                        }
                                         <MudText Typo="Typo.subtitle2">
                                             @income.Amount.ToString("C2")
                                         </MudText>
@@ -77,11 +126,31 @@
                         <MudCard Elevation="0">
                             <MudCardContent>
                                 <MudSelect @bind-Value="income_model.Category" Label="@myText.Select_category" OpenIcon="@Icons.Filled.CurrencyExchange" AdornmentColor="Color.Primary">
-                                    <MudSelectItem Value="@myText.Income_Salary" />
-                                    <MudSelectItem Value="@myText.Income_Investment" />
-                                    <MudSelectItem Value="@myText.Income_Repayment" />
-                                    <MudSelectItem Value="@myText.Income_Sale" />
-                                    <MudSelectItem Value="@myText.Income_Gift" />
+                                    @foreach (IncomeCategory item in Enum.GetValues(typeof(IncomeCategory)))
+                                    {
+                                        switch (item)
+                                        {
+                                            case IncomeCategory.Salary:
+                                                <MudSelectItem Value="IncomeCategory.Salary">@myText.Income_Salary</MudSelectItem>
+                                                break;
+                                            case IncomeCategory.Sale:
+                                                <MudSelectItem Value="IncomeCategory.Sale">@myText.Income_Sale</MudSelectItem>
+                                                break;
+                                            case IncomeCategory.Gift:
+                                                <MudSelectItem Value="IncomeCategory.Gift">@myText.Income_Gift</MudSelectItem>
+                                                break;
+                                            case IncomeCategory.Investment:
+                                                <MudSelectItem Value="IncomeCategory.Investment">@myText.Income_Investment</MudSelectItem>
+                                                break;
+                                            case IncomeCategory.Repayment:
+                                                <MudSelectItem Value="IncomeCategory.Repayment">@myText.Income_Repayment</MudSelectItem>
+                                                break;
+                                            default:
+                                                <MudSelectItem Value="IncomeCategory.Other">@myText.Other</MudSelectItem>
+                                                break;
+                                        }
+                                        @*<MudSelectItem Value="@item">@item</MudSelectItem>*@
+                                    }
                                 </MudSelect>
                                 <MudTextField Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.AttachMoney" AdornmentColor="Color.Primary" T="decimal" For="@(() => income_model.Amount)" Label="@myText.Ammount" @bind-Value="@income_model.Amount" />
                                 <MudDatePicker DisableToolbar="true" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Date" Editable="true" Label="@myText.Date" For="@(() => income_model.Date)" @bind-Date="@income_model.Date" AdornmentColor="Color.Primary" />
@@ -108,14 +177,14 @@
     protected override async Task OnInitializedAsync()
     {
         myText = await translator.GetTextTableAsync<Text>(this);
-        income_model = new Income() { Category = myText.Income_Salary, Date = DateTime.Now };
+        income_model = new Income() { Date = DateTime.Now };
     }
 
     async Task Cancel()
     {
         adding_income = false;
         editing_income = false;
-        income_model = new Income() { Category = myText.Income_Salary, Date = DateTime.Now };
+        income_model = new Income() { Date = DateTime.Now };
     }
 
     async Task AddIncome()
@@ -125,7 +194,7 @@
             if (adding_income)
             {
                 accounting.Incomes.Add(income_model);
-                income_model = new Income() { Category = myText.Income_Salary, Date = DateTime.Now };
+                income_model = new Income() { Date = DateTime.Now };
                 editing_income = false;
                 adding_income = false;
                 Snackbar.Add(myText.Income_inserted, MudBlazor.Severity.Success);
@@ -134,7 +203,7 @@
             {
                 editing_income = false;
                 adding_income = false;
-                income_model = new Income() { Category = myText.Income_Salary, Date = DateTime.Now };
+                income_model = new Income() { Date = DateTime.Now };
                 Snackbar.Add(myText.Income_updated, MudBlazor.Severity.Warning);
             }
             await manage.SaveAccountingData(accounting);
