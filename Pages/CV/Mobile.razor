@@ -277,7 +277,11 @@
     {
         try
         {
-            await cvCreator.Create(cv); ;
+            //var parameters = new DialogParameters();
+            //parameters.Add("CV", cv);
+            //var options = new DialogOptions() { CloseButton = true };
+            //DialogService.Show<DialogExporting>("Download Options", parameters,options);
+            await cvCreator.CreateDoc(cv); ;
         }
         catch (Exception ex)
         {

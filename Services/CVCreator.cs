@@ -16,9 +16,8 @@ namespace BlazeDocX.Services
             jsRuntime = _jsRuntime;
         }
 
-        public async Task Create(CV cv)
+        public async Task CreateDoc(CV cv)
         {
-
             var docX = DocX.Create("profile.docx");
 
             //await InsertPicture(p, profile.Picture);
@@ -39,37 +38,6 @@ namespace BlazeDocX.Services
             AddSkills(cv, docX);
 
             AddReferences(cv, docX);
-            //System.Drawing.Color darkGray = System.Drawing.Color.DarkGray;
-
-            //SetTransparentBorders(t.Rows[1].Cells[0]);
-
-            //SetTransparentBorders(firstRow.Cells[1]).Paragraphs[0]
-            //    .Append(cv.FullName)
-            //    .FontSize(16)
-            //    //.UnderlineStyle(UnderlineStyle.singleLine)
-            //    .Bold()
-            //    .Color(System.Drawing.Color.Black)
-            //    .AppendLine().Alignment = Alignment.center;
-
-            //SetTransparentBorders(firstRow.Cells[2]).Paragraphs[0]
-            //    .Append("Last name:")
-            //    .FontSize(13)
-            //    .UnderlineStyle(UnderlineStyle.singleLine)
-            //    .Bold()
-            //    .Color(darkGray)
-            //    .AppendLine(cv.LastName);
-
-            //var secondRow = t.Rows[1];
-            //secondRow.Height = size / 2;
-
-            //SetTransparentBorders(secondRow.Cells[1]).Paragraphs[0]
-            //    .Append("E-mail:")
-            //    .FontSize(13)
-            //    .UnderlineStyle(UnderlineStyle.singleLine)
-            //    .Bold()
-            //    .Color(darkGray)
-            //    .AppendLine(cv.Email);            
-
             using MemoryStream memStream = new();
             docX.SaveAs(memStream);
             await jsRuntime.InvokeVoidAsync("blazeDocX.downloadStream", memStream.GetBuffer(), $"CV - {cv.FullName}.docx");

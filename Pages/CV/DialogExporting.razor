@@ -1,0 +1,43 @@
+﻿@inject CVCreator cvCreator
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <div class="d-flex flex-column py-1">
+            <MudButton StartIcon="@Icons.Filled.PictureAsPdf" OnClick="CreateWord">Export to Word (.docx file)</MudButton>
+            <MudButton StartIcon="@Icons.Filled.Description" OnClick="CreatePDF">Export to PDF (.pdf file)</MudButton>
+        </div>
+    </DialogContent>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public CV CV { get; set; }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+
+    async Task CreateWord()
+    {
+        try
+        {
+            await cvCreator.CreateDoc(CV);
+            Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    async Task CreatePDF()
+    {
+        try
+        {
+            await cvCreator.CreateDoc(CV);
+            Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}
