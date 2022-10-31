@@ -120,5 +120,7 @@
   "Expense_delete_question": "Do you really want to delete these expense?",
   "Income_Delete_question": "Do you really want to delete these income?",
   "LightMode": "Turn Light Mode",
-  "DarkMode": "Turn Dark Mode"
+  "DarkMode": "Turn Dark Mode",
+  "Incomes_by_categories": "Incomes by categories",
+  "Expenses_by_categories": "Expenses by categories"
 }

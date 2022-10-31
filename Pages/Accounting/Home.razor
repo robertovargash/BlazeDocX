@@ -70,39 +70,23 @@
 @if (income_visible && !menu_visible)
 {
     <CardIncome accounting="accounting" GoBack="GoBack" />
-    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" Visibleback="invisible" Visibleforward="" Textback="" Textforward="@myText.Expenses" />
+    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" ForwardColor="Color.Error" Visibleback="invisible" Visibleforward="" Textback="" Textforward="@myText.Expenses" />
 }
 @if (expense_visible && !menu_visible)
 {
     <CardExpense accounting="accounting" GoBack="GoBack" />
-    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" Textback="@myText.Incomes" Textforward="" Visibleback="" Visibleforward="invisible" />
+    <AccountingFooter GoBack="GoToIncome" GoForward="GoToExpense" BackColor="Color.Success" Textback="@myText.Incomes" Textforward="" Visibleback="" Visibleforward="invisible" />
 }
 @if (charts_visible && !menu_visible)
 {
-    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
-        <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
-                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <MudChart ChartOptions="@options" ChartType="ChartType.Line" Class="ma-4" ChartSeries="@GetSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
-
-                </MudChart>
-            </MudPaper>
-        </MudContainer>
-    </div>
-    <div id="footer" style="position:absolute; bottom:0px; height:0px; left:0px; right:0px; overflow:hidden;">
-    </div>
+    <CardCharts accounting="accounting" GoBack="GoBack" />
 }
 
 @code {
-    private ChartOptions options = new ChartOptions();
-    //ChartOptions options = new ChartOptions() { ChartPalette = new[] { "#4CAF50", "#FF1744" }, InterpolationOption = InterpolationOption.NaturalSpline };
     private const string ACCOUNT_LOCAL_STORAGE = "accounting";
     bool income_visible, expense_visible, charts_visible;
     bool menu_visible = true;
     public Accounting accounting { get; set; } = new Accounting();
-    private List<decimal> incomes = new List<decimal>();
-    private List<decimal> expenses = new List<decimal>();
-    private List<string> dates = new List<string>();
     private string Title = "Workbooks";
 
     [CascadingParameter]
@@ -114,7 +98,6 @@
         try
         {
             Layout.Title = Title;
-            options.ChartPalette = new[] { "#4CAF50", "#FF1744" };
             accounting = await localStorage.GetItemAsync<Accounting>(ACCOUNT_LOCAL_STORAGE);
             myText = await translator.GetTextTableAsync<Text>(this);
             if (accounting == null)
@@ -127,67 +110,6 @@
         {
             Snackbar.Add(ex.Message, Severity.Error);
         }
-    }
-
-    public List<ChartSeries> GetSeries()
-    {
-        incomes = new List<decimal>();
-        expenses = new List<decimal>();
-        dates = new List<string>();
-        var groupedIncome = accounting.Incomes.OrderBy(x => x.Date)
-                 .GroupBy(inc => inc.Date) //group it by date
-                 .Select(groupedIncomeByDate =>
-                     new
-                     {
-                         Date = groupedIncomeByDate.Key,
-                         Amount = groupedIncomeByDate
-                                      .Sum(monthIncome => monthIncome.Amount),
-                         IsIncome = true
-                     }).ToList();
-
-        var groupedExpenses = accounting.Expenses.OrderBy(x => x.Date)
-                    .GroupBy(exp => exp.Date)//group it by date
-                    .Select(groupedExpenseByDate =>
-                        new
-                        {
-                            Date = groupedExpenseByDate.Key,
-                            Amount = groupedExpenseByDate
-                                         .Sum(monthExpense => monthExpense.Amount),
-                            IsIncome = false
-                        }).ToList(); // marker for Concat/Union All
-
-        var result = groupedIncome.Concat(groupedExpenses).OrderBy(x => x.Date)
-                  .GroupBy(x => x.Date)
-                  .Select(r =>
-                               new
-                               {
-                                   Date = r.Key,
-                                   Income = r.Where(p => p.IsIncome).Sum(g => g.Amount),
-                                   Expense = r.Where(p => !p.IsIncome).Sum(g => g.Amount)
-                               }).ToList();
-
-
-        foreach (var income in result.OrderBy(x => x.Date))
-        {
-            incomes.Add(income.Income);
-        }
-        foreach (var expense in result.OrderBy(x => x.Date))
-        {
-            expenses.Add(expense.Expense);
-        }
-        foreach (var date in result.OrderBy(x => x.Date))
-        {
-            dates.Add(((DateTime)date.Date).ToString("dd/MM/yyyy"));
-        }
-        return new List<ChartSeries>()
-            {
-                new ChartSeries() { Name = myText.Incomes, Data = Array.ConvertAll(incomes.ToArray(),x => (double)x) },
-                new ChartSeries() { Name = myText.Expenses, Data = Array.ConvertAll(expenses.ToArray(),x => (double)x) }
-            };
-    }
-    public string[] XAxisLabels()
-    {
-        return dates.OrderBy(i => i).ToArray();
     }
     public string CalculateIncomes()
     {

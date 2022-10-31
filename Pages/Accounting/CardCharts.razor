@@ -1,0 +1,301 @@
+﻿@inject IJSRuntime jsRuntime
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ILocalStorageService localStorage
+@inject StorageManager manage
+@inject WorkBookCreator workbook_creator;
+@inject NavigationManager NavManager
+@inject I18nText translator
+
+@if (line_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <style>
+                    .mud-chart-line {
+                        overflow: visible;
+                    }
+                </style>
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <MudText Typo="Typo.h6" Style="color: #4CAF50;" Class="ma-2">Monetary flow last 7 days</MudText>
+                <MudChart ChartOptions="@options" ChartType="ChartType.Line" LegendPosition="Position.Top" Class="ma-4" ChartSeries="@GetLineSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
+
+                </MudChart>
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <AccountingFooter GoBack="GoExpenseDonut" GoForward="GoIncomeDonut" ForwardColor="Color.Primary" BackColor="Color.Primary" Textback="@myText.Btn_back" Textforward="@myText.Btn_Next" />
+}
+@if (donut_income_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <MudText Typo="Typo.h6" Style="color: #4CAF50;" Class="ma-2">@myText.Incomes_by_categories</MudText>
+                <MudChart ChartType="ChartType.Donut" LegendPosition="Position.Top" Height="400px"
+                      InputData="@GetDonutIncomeSeries()" InputLabels="@(Array.ConvertAll(Label_donut_income.ToArray(), x => (string)x))">
+                </MudChart>
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <AccountingFooter GoBack="GoLine" GoForward="GoExpenseDonut" ForwardColor="Color.Primary" BackColor="Color.Primary" Textback="@myText.Btn_back" Textforward="@myText.Btn_Next" />
+}
+@if (donut_expense_visible)
+{
+    <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
+        <MudContainer>
+            <MudPaper Elevation="0" Class="ma-1">
+                <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
+                <MudText Typo="Typo.h6" Style="color: #FF1744;" Class="ma-2">@myText.Expenses_by_categories</MudText>
+                <MudChart ChartType="ChartType.Donut" LegendPosition="Position.Top" Height="400px" InputData="@GetDonutExpenseSeries()" InputLabels="@(Array.ConvertAll(Label_donut_expense.ToArray(), x => (string)x))">
+                </MudChart>
+            </MudPaper>
+        </MudContainer>
+    </div>
+    <AccountingFooter GoBack="GoIncomeDonut" GoForward="GoLine" ForwardColor="Color.Primary" BackColor="Color.Primary" Textback="@myText.Btn_back" Textforward="@myText.Btn_Next" />
+}
+
+
+@code {
+    [Parameter] public Accounting accounting { get; set; }
+    [Parameter] public EventCallback GoBack { get; set; }
+
+    private List<string> Label_donut_expense = new List<string>();
+    private List<string> Label_donut_income = new List<string>();
+
+    private ChartOptions options = new ChartOptions();
+    private List<decimal> incomes = new List<decimal>();
+    private List<decimal> expenses = new List<decimal>();
+    private List<string> dates = new List<string>();
+    Text myText = new Text();
+    bool line_visible, donut_income_visible, donut_expense_visible;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            GoLine();
+            options.ChartPalette = new[] { "#4CAF50", "#FF1744" };
+            options.YAxisFormat = String.Format("C2");
+            options.MaxNumYAxisTicks = 7;
+            myText = await translator.GetTextTableAsync<Text>(this);
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    public List<ChartSeries> GetLineSeries()
+    {
+        incomes = new List<decimal>();
+        expenses = new List<decimal>();
+        dates = new List<string>();
+        var groupedIncome = accounting.Incomes.OrderBy(x => x.Date)
+                 .GroupBy(inc => inc.Date.Value.Date) //group it by date
+                 .Select(groupedIncomeByDate =>
+                     new
+                     {
+                         Date = groupedIncomeByDate.Key,
+                         Amount = groupedIncomeByDate
+                                      .Sum(monthIncome => monthIncome.Amount),
+                         IsIncome = true
+                     }).ToList();
+
+        var groupedExpenses = accounting.Expenses.OrderBy(x => x.Date)
+                    .GroupBy(exp => exp.Date.Value.Date)//group it by date
+                    .Select(groupedExpenseByDate =>
+                        new
+                        {
+                            Date = groupedExpenseByDate.Key,
+                            Amount = groupedExpenseByDate
+                                         .Sum(monthExpense => monthExpense.Amount),
+                            IsIncome = false
+                        }).ToList(); // marker for Concat/Union All
+
+        var result = groupedIncome.Concat(groupedExpenses).OrderBy(x => x.Date)
+                  .GroupBy(x => x.Date)
+                  .Select(r =>
+                               new
+                               {
+                                   Date = r.Key,
+                                   Income = r.Where(p => p.IsIncome).Sum(g => g.Amount),
+                                   Expense = r.Where(p => !p.IsIncome).Sum(g => g.Amount)
+                               }).ToList();
+
+
+        foreach (var income in result.OrderBy(x => x.Date).TakeLast(7))
+        {
+            incomes.Add(income.Income);
+        }
+        foreach (var expense in result.OrderBy(x => x.Date).TakeLast(7))
+        {
+            expenses.Add(expense.Expense);
+        }
+        foreach (var date in result.OrderBy(x => x.Date).TakeLast(7))
+        {
+            dates.Add(((DateTime)date.Date).ToString("dd/MM/yyyy"));
+        }
+        return new List<ChartSeries>()
+            {
+                new ChartSeries() { Name = myText.Incomes, Data = Array.ConvertAll(incomes.ToArray(),x => (double)x) },
+                new ChartSeries() { Name = myText.Expenses, Data = Array.ConvertAll(expenses.ToArray(),x => (double)x) }
+            };
+    }
+
+    public double[] GetDonutIncomeSeries()
+    {
+        List<decimal> my = new List<decimal>();
+        var groupedIncome = accounting.Incomes.OrderBy(x => x.Category)
+                 .GroupBy(inc => inc.Category) //group it by date
+                 .Select(groupedIncomeByCat =>
+                     new
+                     {
+                         Category = groupedIncomeByCat.Key,
+                         Amount = groupedIncomeByCat.Sum(income => income.Amount),
+                         IsIncome = true
+                     }).ToList();
+
+        Label_donut_income = new List<string>();
+
+        foreach (var item in groupedIncome)
+        {
+            switch (item.Category)
+            {
+                case IncomeCategory.Salary:
+                    Label_donut_income.Add($"{myText.Income_Salary}: {item.Amount.ToString("C")}");
+                    break;
+                case IncomeCategory.Sale:
+                    Label_donut_income.Add($"{myText.Income_Sale}: {item.Amount.ToString("C")}");
+                    break;
+                case IncomeCategory.Repayment:
+                    Label_donut_income.Add($"{myText.Income_Repayment}: {item.Amount.ToString("C")}");
+                    break;
+                case IncomeCategory.Investment:
+                    Label_donut_income.Add($"{myText.Income_Investment}: {item.Amount.ToString("C")}");
+                    break;
+                case IncomeCategory.Gift:
+                    Label_donut_income.Add($"{myText.Income_Gift}: {item.Amount.ToString("C")}");
+                    break;
+                default:
+                    Label_donut_income.Add($"{myText.Other}: {item.Amount.ToString("C")}");
+                    break;
+            }
+            my.Add(item.Amount);
+        }
+
+        return Array.ConvertAll(my.ToArray(), x => (double)x);
+    }
+
+    public double[] GetDonutExpenseSeries()
+    {
+        List<decimal> my = new List<decimal>();
+        var groupedExpense = accounting.Expenses.OrderBy(x => x.Category)
+                 .GroupBy(inc => inc.Category) //group it by date
+                 .Select(groupedExpenseByCat =>
+                     new
+                     {
+                         Category = groupedExpenseByCat.Key,
+                         Amount = groupedExpenseByCat.Sum(expense => expense.Amount)
+                     }).ToList();
+
+        foreach (var item in groupedExpense)
+        {
+            switch (item.Category)
+            {
+                case ExpenseCategory.Invoices:
+                    Label_donut_expense.Add($"{myText.Expense_Invoices}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Communication:
+                    Label_donut_expense.Add($"{myText.Expense_Communications}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Education:
+                    Label_donut_expense.Add($"{myText.Expense_Education}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Investment:
+                    Label_donut_expense.Add($"{myText.Expense_Invest}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Electricity:
+                    Label_donut_expense.Add($"{myText.Expense_Electricity}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Entertaiment:
+                    Label_donut_expense.Add($"{myText.Expense_Entertaiment}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Food:
+                    Label_donut_expense.Add($"{myText.Expense_Food}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Health:
+                    Label_donut_expense.Add($"{myText.Expense_Food}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Home:
+                    Label_donut_expense.Add($"{myText.Expense_Home}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Kids:
+                    Label_donut_expense.Add($"{myText.Expense_Kids}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Personal:
+                    Label_donut_expense.Add($"{myText.Expense_Personal}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Purchase:
+                    Label_donut_expense.Add($"{myText.Expense_Purchase}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Services:
+                    Label_donut_expense.Add($"{myText.Expense_Services}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Taxes:
+                    Label_donut_expense.Add($"{myText.Expense_Taxes}: {item.Amount.ToString("C")}");
+                    break;
+                case ExpenseCategory.Travel:
+                    Label_donut_expense.Add($"{myText.Expense_Travel}: {item.Amount.ToString("C")}");
+                    break;
+                default:
+                    Label_donut_expense.Add($"{myText.Other}: {item.Amount.ToString("C")}");
+                    break;
+            }
+            my.Add(item.Amount);
+        }
+
+        return Array.ConvertAll(my.ToArray(), x => (double)x);
+    }
+
+
+    public string[] XAxisLabels()
+    {
+        return dates.OrderBy(i => i).ToArray();
+    }
+    public string CalculateIncomes()
+    {
+        decimal sum_income = accounting.Incomes.Select(t => t.Amount).Sum();
+        return sum_income.ToString("C2");
+    }
+
+    public string CalculateExpenses()
+    {
+        decimal sum_income = accounting.Expenses.Select(t => t.Amount).Sum();
+        return sum_income.ToString("C2");
+    }
+
+    private void GoIncomeDonut()
+    {
+        line_visible = false;
+        donut_income_visible = true;
+        donut_expense_visible = false;
+    }
+
+    private void GoExpenseDonut()
+    {
+        line_visible = false;
+        donut_income_visible = false;
+        donut_expense_visible = true;
+    }
+
+    private void GoLine()
+    {
+        line_visible = true;
+        donut_income_visible = false;
+        donut_expense_visible = false;
+    }
+
+}

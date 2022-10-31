@@ -18,6 +18,14 @@
                             <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company" AdornmentIcon="@Icons.Filled.Factory" T="string" For="@(() => experience_model.CompanyName)" Label="@myText.Company_name" @bind-Value="@experience_model.CompanyName" />
                             <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_location" AdornmentIcon="@Icons.Filled.LocationOn" T="string" For="@(() => experience_model.CompanyCountry)" Label="@myText.Company_location" @bind-Value="@experience_model.CompanyCountry" />
                             <MudTextField Adornment="Adornment.Start" HelperText="@myText.Helper_company_position" AdornmentIcon="@Icons.Rounded.Cases" T="string" Label="@myText.Position" For="@(() => experience_model.Occupation)" @bind-Value="@experience_model.Occupation" />
+                            <style type="text/css" media="screen and (max-width:600px)">
+                                 .mud-popover:has(.mud-picker) {
+                                        position: fixed !important;
+                                        top: 50% !important;
+                                        left: 50% !important;
+                                        transform: translate(-50%,-50%) !important;
+                                    }
+                            </style>
                             <MudDatePicker DisableToolbar="true" HelperText="@myText.Helper_startdate" DateFormat="dd/MM/yyyy" Placeholder="@myText.Select_Start_Date" Editable="true" Label="@myText.Start_date" For="@(() => experience_model.StartDate)" @bind-Date="@experience_model.StartDate" />
                             @if (!experience_model.IsCurrent)
                             {

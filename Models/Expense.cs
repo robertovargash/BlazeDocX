@@ -23,17 +23,9 @@ namespace BlazeDocX.Models
         Other
     }
 
-    public class Expense
+    public class Expense : AccountModel
     {
         [Required(ErrorMessage = "Required field")]
         public ExpenseCategory Category { get; set; }
-        [Required(ErrorMessage = "Required field")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
-        [Required(ErrorMessage = "Required field")]
-        public DateTime? Date { get; set; }
-        //[Required(ErrorMessage = "Required field")]
-        //public Account Account { get; set; } = null!;
-        public string Details { get; set; } = string.Empty;
     }
 }
