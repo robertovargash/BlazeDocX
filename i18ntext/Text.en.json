@@ -121,6 +121,7 @@
   "Income_Delete_question": "Do you really want to delete these income?",
   "LightMode": "Turn Light Mode",
   "DarkMode": "Turn Dark Mode",
+  "Monetary_flow": "Monetary flow last 7 days",
   "Incomes_by_categories": "Incomes by categories",
   "Expenses_by_categories": "Expenses by categories"
 }

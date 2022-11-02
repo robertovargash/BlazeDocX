@@ -11,14 +11,14 @@
 {
     <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
         <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
+            <MudPaper Elevation="0" Style="background-color: transparent;" Class="ma-1">
                 <style>
                     .mud-chart-line {
                         overflow: visible;
                     }
                 </style>
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
-                <MudText Typo="Typo.h6" Style="color: #4CAF50;" Class="ma-2">Monetary flow last 7 days</MudText>
+                <MudText Typo="Typo.h6" Style="color: #4CAF50;" Class="ma-2">@myText.Monetary_flow</MudText>
                 <MudChart ChartOptions="@options" ChartType="ChartType.Line" LegendPosition="Position.Top" Class="ma-4" ChartSeries="@GetLineSeries()" XAxisLabels="@XAxisLabels()" Width="100%" Height="100%">
 
                 </MudChart>
@@ -31,7 +31,7 @@
 {
     <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
         <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
+            <MudPaper Elevation="0" Style="background-color: transparent;" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
                 <MudText Typo="Typo.h6" Style="color: #4CAF50;" Class="ma-2">@myText.Incomes_by_categories</MudText>
                 <MudChart ChartType="ChartType.Donut" LegendPosition="Position.Top" Height="400px"
@@ -46,7 +46,7 @@
 {
     <div id="content" style="position:absolute; top:128px; bottom:64px; left:0px; right:0px; overflow:auto;">
         <MudContainer>
-            <MudPaper Elevation="0" Class="ma-1">
+            <MudPaper Elevation="0" Style="background-color: transparent;" Class="ma-1">
                 <MudIconButton Icon="@Icons.Filled.Menu" aria-label="menu" Class="mt-2" OnClick="GoBack" />
                 <MudText Typo="Typo.h6" Style="color: #FF1744;" Class="ma-2">@myText.Expenses_by_categories</MudText>
                 <MudChart ChartType="ChartType.Donut" LegendPosition="Position.Top" Height="400px" InputData="@GetDonutExpenseSeries()" InputLabels="@(Array.ConvertAll(Label_donut_expense.ToArray(), x => (string)x))">
@@ -297,5 +297,4 @@
         donut_income_visible = false;
         donut_expense_visible = false;
     }
-
 }

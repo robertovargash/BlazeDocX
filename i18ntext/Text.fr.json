@@ -121,6 +121,7 @@
   "Income_Delete_question": "Voulez-vous supprimer cette entrée ?",
   "LightMode": "Mode lumière",
   "DarkMode": "Mode sombre",
+  "Monetary_flow": "Flux monétaire des 7 derniers jours",
   "Incomes_by_categories": "Revenu par catégories",
   "Expenses_by_categories": "Dépenses par catégories"
 }
